@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1498EEE32480DAE200A78F86 /* RXHardwareConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1498EEE22480DAE200A78F86 /* RXHardwareConfig.swift */; };
+		14A8B80A2480FF5D00E49B9F /* R1BodyViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A8B8092480FF5D00E49B9F /* R1BodyViewType.swift */; };
 		14FC6284247BA92000E9B7BA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6283247BA92000E9B7BA /* AppDelegate.swift */; };
 		14FC6286247BA92000E9B7BA /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6285247BA92000E9B7BA /* ContentView.swift */; };
 		14FC6288247BA92100E9B7BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14FC6287247BA92100E9B7BA /* Assets.xcassets */; };
@@ -38,6 +40,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1498EEE22480DAE200A78F86 /* RXHardwareConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXHardwareConfig.swift; sourceTree = "<group>"; };
+		14A8B8092480FF5D00E49B9F /* R1BodyViewType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1BodyViewType.swift; sourceTree = "<group>"; };
 		14FC6280247BA92000E9B7BA /* R1 Config.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "R1 Config.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		14FC6283247BA92000E9B7BA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		14FC6285247BA92000E9B7BA /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -95,6 +99,8 @@
 				14FC62A6247BD8A600E9B7BA /* ScriptSelection.swift */,
 				14FC62AA247BD8C300E9B7BA /* R1BodyView.swift */,
 				14FC62A4247BC0D500E9B7BA /* R1ButtonView.swift */,
+				14A8B8092480FF5D00E49B9F /* R1BodyViewType.swift */,
+				1498EEE22480DAE200A78F86 /* RXHardwareConfig.swift */,
 				14FC62FF247C91CB00E9B7BA /* Workarounds */,
 				14FC6287247BA92100E9B7BA /* Assets.xcassets */,
 				14FC628C247BA92100E9B7BA /* Main.storyboard */,
@@ -205,10 +211,12 @@
 				14FC62DC247C6EA700E9B7BA /* LeftText.swift in Sources */,
 				14FC62AB247BD8C300E9B7BA /* R1BodyView.swift in Sources */,
 				14FC62A5247BC0D500E9B7BA /* R1ButtonView.swift in Sources */,
+				14A8B80A2480FF5D00E49B9F /* R1BodyViewType.swift in Sources */,
 				14FC6286247BA92000E9B7BA /* ContentView.swift in Sources */,
 				14FC6284247BA92000E9B7BA /* AppDelegate.swift in Sources */,
 				14FC62D5247C6D5E00E9B7BA /* OpenPanelBridge.swift in Sources */,
 				14FC62A9247BD8B400E9B7BA /* ColorConfigHeaderView.swift in Sources */,
+				1498EEE32480DAE200A78F86 /* RXHardwareConfig.swift in Sources */,
 				14FC62A3247BC09F00E9B7BA /* ColorPanelBridge.swift in Sources */,
 				14FC62A7247BD8A600E9B7BA /* ScriptSelection.swift in Sources */,
 			);

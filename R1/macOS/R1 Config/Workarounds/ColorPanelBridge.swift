@@ -14,20 +14,22 @@ class ColorPanelBridge {
     // MARK: - Properties -
     
     var update: ((R1Color) -> Void)?
+    private let panel = NSColorPanel.shared
     
     // MARK: - Helpers -
     
     func show(_ update: @escaping (R1Color) -> Void) {
-        let panel = NSColorPanel.shared
         panel.setTarget(self)
         panel.setAction(#selector(selectedColor(sender:)))
         panel.makeKeyAndOrderFront(self)
         panel.isContinuous = true
         panel.showsAlpha = false
         self.update = update
+        
     }
     
     @objc func selectedColor(sender: NSColorPanel) {
         update?(R1Color(sender.color))
+        NSApp.mainWindow?.makeKey()
     }
 }

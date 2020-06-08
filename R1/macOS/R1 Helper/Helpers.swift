@@ -21,14 +21,8 @@ struct Helpers {
             return
         }
         
-        if button == 1, let script = config.firstScript {
-            ScriptRunner.run(script: script)
-        } else if button == 2, let script = config.secondScript {
-            ScriptRunner.run(script: script)
-        } else if button == 3, let script = config.thirdScript {
-            ScriptRunner.run(script: script)
-        } else if button == 4, let script = config.fourthScript {
-            ScriptRunner.run(script: script)
+        if button >= config.buttons.count, let action = config.buttons[button - 1].action {
+            ScriptRunner.run(script: action)
         } else {
             ScriptRunner.showNotification(title: "R1 Not Configured", text: "Pressed button \(button) with no script for \(config.name)")
         }

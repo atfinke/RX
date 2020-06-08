@@ -11,7 +11,19 @@ import R1Kit
 
 struct R1BodyView: View {
     
-    @Binding var colors: R1ColorCollection
+    @Binding var buttons: [R1AppButton]
+    let state: R1BodyViewType
+    
+    private var colors: [R1Color] {
+        switch self.state {
+        case .open:
+            return buttons.map({ $0.colors.open })
+        case .resting:
+            return buttons.map({ $0.colors.resting })
+        case .pressed:
+            return buttons.map({ $0.colors.pressed })
+        }
+    }
     
     var body: some View {
         ZStack {
@@ -20,27 +32,50 @@ struct R1BodyView: View {
             RoundedRectangle(cornerRadius: 8)
                 .stroke(Color.primary, lineWidth: 3)
             HStack {
-                R1ButtonView(color: $colors.firstColor)
-                Spacer()
-                R1ButtonView(color: $colors.secondColor)
-                Spacer()
-                R1ButtonView(color: $colors.thirdColor)
-                Spacer()
-                R1ButtonView(color: $colors.fourthColor)
-            }.padding(12)
-        }.frame(height: 20).onDrag { () -> NSItemProvider in
-            return NSItemProvider(object: R1ColorCollectionProvider(self.colors))
-        }.onDrop(of:  [kUTTypeData as String], isTargeted: nil) { providers -> Bool in
-            guard let item = providers.first(where: { $0.hasItemConformingToTypeIdentifier(kUTTypeData as String)}) else {
+                ForEach(buttons.indices, id: \.self){ index in
+                    HStack {
+                        R1ButtonView(
+                            button: Binding(
+                                get: { self.buttons[index] },
+                                set: { self.buttons[index] = $0 }),
+                            state: self.state
+                        )
+                        if index != RXHardwareConfig.numberOfButtons - 1 {
+                            Spacer()
+                        }
+                    }
+                }
+            }
+            .padding(12)
+        }
+        .frame(height: 20)
+        .onDrag { () -> NSItemProvider in
+            return NSItemProvider(object: R1ColorsProvider(self.colors))
+        }
+        .onDrop(of: [R1ColorsProvider.identifier], isTargeted: nil) { providers -> Bool in
+            guard let item = providers.first(where: { $0.hasItemConformingToTypeIdentifier(R1ColorsProvider.identifier)}) else {
                 return false
             }
-            _ = item.loadObject(ofClass: R1ColorCollectionProvider.self) { object, _ in
-                guard let config = (object as? R1ColorCollectionProvider)?.config else { return }
+            _ = item.loadObject(ofClass: R1ColorsProvider.self) { object, _ in
+                guard let colors = (object as? R1ColorsProvider)?.colors else { return }
                 DispatchQueue.main.async {
-                    self.colors = config
+                    for (index, color) in colors.enumerated() {
+                        self.update(color: color, index: index)
+                    }
                 }
             }
             return true
+        }
+    }
+    
+    private func update(color: R1Color, index: Int) {
+        switch state {
+        case .open:
+            self.buttons[index].colors.open = color
+        case .resting:
+            self.buttons[index].colors.resting = color
+        case .pressed:
+            self.buttons[index].colors.pressed = color
         }
     }
 }

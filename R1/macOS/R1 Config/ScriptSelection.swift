@@ -13,10 +13,13 @@ struct ScriptSelection: View {
     
     // MARK: - Properties -
     
-    @Binding var script: R1Script?
-    let button: String
+    @Binding var button: R1AppButton
+    
+    let title: String
     
     private let openPanel = OpenPanelBridge()
+    
+//    var onSelect: (R1Script) -> ()
     
     // MARK: - Body -
     
@@ -24,10 +27,10 @@ struct ScriptSelection: View {
         VStack {
             Button(action: {
                 if let script = self.openPanel.selectR1Script() {
-                    self.script = script
+                    self.button.action = script
                 }
             }, label: {
-                Text(button).frame(width: 65)
+                Text(title).frame(width: 65)
             })
             scriptLabel
                 .font(.system(size: 9, weight: .regular, design: .monospaced))
@@ -37,7 +40,7 @@ struct ScriptSelection: View {
     }
     
     private var scriptLabel: some View {
-        if let script = self.script {
+        if let script = button.action {
             return Text(script.name)
         } else {
             return Text("-")

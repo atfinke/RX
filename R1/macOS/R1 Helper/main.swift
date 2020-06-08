@@ -10,6 +10,8 @@ import Cocoa
 import R1Kit
 import os.log
 
+private let RXHardwareButtons = 4
+
 class Main {
     
     // MARK: - Properties -
@@ -17,14 +19,14 @@ class Main {
     private var manager: R1ConnectionManager?
     private let log = OSLog(subsystem: "com.andrewfinke.R1", category: "main")
     
-    private var settings = R1Settings(writingEnabled: false)
+    private var settings = R1Settings(writingEnabled: false, rxButtons: RXHardwareButtons)
     private var config: R1AppConfig? {
         didSet {
             guard config?.name != oldValue?.name else { return }
             if let config = config {
                 manager?.send(config: config)
             } else {
-                // turn off buttons
+                fatalError()
             }
         }
     }
@@ -56,7 +58,7 @@ class Main {
         let activeApp = Helpers.activeApp()
         
         if activeApp == "R1 Config" {
-            settings = R1Settings(writingEnabled: false)
+            settings = R1Settings(writingEnabled: false, rxButtons: RXHardwareButtons)
             if let def = settings.defaultAppConfigs.first(where: { $0.name == "Default" }), def != config {
                 manager?.send(config: def)
             }

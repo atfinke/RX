@@ -42,7 +42,7 @@ struct MasterView: View {
                 Spacer()
                 Button(action: {
                     if let app = self.openPanel.selectApp() {
-                        let config = R1AppConfig(name: app)
+                        let config = R1AppConfig(name: app, buttonCount: RXHardwareConfig.numberOfButtons)
                         self.settings.customAppConfigs.append(config)
                         self.settings.customAppConfigs.sort(by: { $0.name < $1.name })
                     }
@@ -73,17 +73,32 @@ struct DetailView: View {
             HStack {
                 VStack {
                     ColorCollectionHeaderView(text: "Open")
-                    R1BodyView(colors: $config.open)
+                    R1BodyView(
+                        buttons: Binding(
+                            get: { self.config.buttons },
+                            set: { self.config.buttons = $0 }),
+                        state: .open
+                    )
                 }
                 Spacer(minLength: 35)
                 VStack {
                     ColorCollectionHeaderView(text: "Resting")
-                    R1BodyView(colors: $config.resting)
+                    R1BodyView(
+                        buttons: Binding(
+                            get: { self.config.buttons },
+                            set: { self.config.buttons = $0 }),
+                        state: .resting
+                    )
                 }
                 Spacer(minLength: 35)
                 VStack {
                     ColorCollectionHeaderView(text: "Pressed")
-                    R1BodyView(colors: $config.pressed)
+                    R1BodyView(
+                        buttons: Binding(
+                            get: { self.config.buttons },
+                            set: { self.config.buttons = $0 }),
+                        state: .pressed
+                    )
                 }
             }.padding(.top, 5)
                 .padding(.bottom, 18)
@@ -96,24 +111,30 @@ struct DetailView: View {
             ).padding(.top, 10)
             
             HStack {
-                ScriptSelection(script: $config.firstScript, button: "One")
-                Spacer()
-                ScriptSelection(script: $config.secondScript, button: "Two")
-                Spacer()
-                ScriptSelection(script: $config.thirdScript, button: "Three")
-                Spacer()
-                ScriptSelection(script: $config.fourthScript, button: "Four")
+                ForEach(config.buttons.indices, id: \.self){ index in
+                    HStack {
+                        ScriptSelection(
+                            button: Binding(
+                                get: { self.config.buttons[index] },
+                                set: { self.config.buttons[index] = $0 }),
+                            title: self.config.buttons[index].id.description
+                        )
+                        if index != RXHardwareConfig.numberOfButtons - 1 {
+                            Spacer()
+                        }
+                    }
+                }
             }
-            
             Spacer()
-        }.padding([.leading, .trailing], 30)
-            .padding(.top, 20)
+        }
+        .padding([.leading, .trailing], 30)
+        .padding(.top, 20)
         
     }
 }
 
 struct ContentView: View {
-    @State var settings = R1Settings()
+    @State var settings = R1Settings(rxButtons: RXHardwareConfig.numberOfButtons)
     
     var body: some View {
         return NavigationView {

@@ -13,16 +13,37 @@ struct R1ButtonView: View {
     
     // MARK: - Properties -
     
-    @Binding var color: R1Color
+    @Binding var button: R1AppButton
+    let state: R1BodyViewType
+    
     private let radius: CGFloat = 5
     private let colorPanel = ColorPanelBridge()
+    
+    var color: R1Color {
+        get {
+            return button.colors.open
+        }
+        set {
+            button.colors.open = newValue
+        }
+    }
     
     // MARK: - Body -
     
     var body: some View {
-        Button(action: {
+        let color: Color
+        switch self.state {
+        case .open:
+            color = button.colors.open.swiftColor
+        case .resting:
+            color = button.colors.resting.swiftColor
+        case .pressed:
+            color = button.colors.pressed.swiftColor
+        }
+        
+        return Button(action: {
             self.colorPanel.show { color in
-                self.color = color
+                self.update(color: color)
             }
         }, label: {
             ZStack {
@@ -31,11 +52,37 @@ struct R1ButtonView: View {
                     .frame(width: radius * 2, height: radius * 2)
                 
                 Circle()
-                    .stroke(color.swiftColor, lineWidth: 3)
+                    .stroke(color, lineWidth: 3)
                     .frame(width: radius * 2, height: radius * 2)
+            }
+            .onDrag { () -> NSItemProvider in
+                return NSItemProvider(object: R1ColorProvider(self.color))
+            }
+            .onDrop(of: [R1ColorProvider.identifier], isTargeted: nil) { providers -> Bool in
+                guard let item = providers.first(where: { $0.hasItemConformingToTypeIdentifier(R1ColorProvider.identifier)}) else {
+                    return false
+                }
+                _ = item.loadObject(ofClass: R1ColorProvider.self) { object, _ in
+                    guard let color = (object as? R1ColorProvider)?.color else { return }
+                    DispatchQueue.main.async {
+                        self.update(color: color)
+                    }
+                }
+                return true
             }
         }).buttonStyle(PlainButtonStyle())
             
+    }
+    
+    private func update(color: R1Color) {
+        switch state {
+        case .open:
+            button.colors.open = color
+        case .resting:
+            button.colors.resting = color
+        case .pressed:
+            button.colors.pressed = color
+        }
     }
 }
 

@@ -27,21 +27,14 @@ public final class R1Settings: ObservableObject, Codable {
     
     // MARK: - Initalization -
     
-    public init(writingEnabled: Bool = true) {
+    public init(writingEnabled: Bool = true, rxButtons: Int) {
         if let data = try? Data(contentsOf: R1URL.configData()), let object = try? JSONDecoder().decode(R1Settings.self, from: data) {
             customAppConfigs = object.customAppConfigs
             defaultAppConfigs = object.defaultAppConfigs
         } else {
             customAppConfigs = []
-            defaultAppConfigs = [_default]
+            defaultAppConfigs = [R1AppConfig.defaultConfig(rxButtons: rxButtons)]
         }
-        
-//        customAppConfigs = []
-//        defaultAppConfigs = [_default]
-        
-//        customAppConfigs = [_messages, _xcode]
-//        customAppConfigs = []
-//        defaultAppConfigs = []
             
         guard writingEnabled else { return }
         onUpdateCancellable = R1Notifier.local.onUpdate
@@ -74,83 +67,83 @@ public final class R1Settings: ObservableObject, Codable {
     }
 }
 
-
-private let _messages = R1AppConfig(
-    name: "Messages",
-    open: .init(
-        firstColor: R1Color(.green),
-        secondColor: R1Color(.green),
-        thirdColor: R1Color(.green),
-        fourthColor: R1Color(.green)
-    ),
-    resting: .init(
-        firstColor: R1Color(.green),
-        secondColor: R1Color(.green),
-        thirdColor: R1Color(.green),
-        fourthColor: R1Color(.green)
-    ),
-    pressed: .init(
-        firstColor: R1Color(.green),
-        secondColor: R1Color(.green),
-        thirdColor: R1Color(.green),
-        fourthColor: R1Color(.green)
-    ),
-    firstScript: nil,
-    secondScript: nil,
-    thirdScript: nil,
-    fourthScript: nil
-)
-
-private let _xcode = R1AppConfig(
-    name: "Xcode",
-    open: .init(
-        firstColor: R1Color(.blue),
-        secondColor: R1Color(.blue),
-        thirdColor: R1Color(.blue),
-        fourthColor: R1Color(.blue)
-    ),
-    resting: .init(
-        firstColor: R1Color(.blue),
-        secondColor: R1Color(.blue),
-        thirdColor: R1Color(.blue),
-        fourthColor: R1Color(.blue)
-    ),
-    pressed: .init(
-        firstColor: R1Color(.blue),
-        secondColor: R1Color(.red),
-        thirdColor: R1Color(.red),
-        fourthColor: R1Color(.red)
-    ),
-    firstScript: nil,
-    secondScript: nil,
-    thirdScript: nil,
-    fourthScript: nil
-)
-
-private let white = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
-
-private let _default = R1AppConfig(
-    name: "Default",
-    open: .init(
-        firstColor: R1Color(.purple),
-        secondColor: R1Color(.red),
-        thirdColor: R1Color(.green),
-        fourthColor: R1Color(.blue)
-    ),
-    resting: .init(
-        firstColor: R1Color(white),
-        secondColor: R1Color(white),
-        thirdColor: R1Color(white),
-        fourthColor: R1Color(white)
-    ),
-    pressed: .init(
-        firstColor: R1Color(white),
-        secondColor: R1Color(white),
-        thirdColor: R1Color(white),
-        fourthColor: R1Color(white)
-    ),
-    firstScript: nil,
-    secondScript: nil,
-    thirdScript: nil,
-    fourthScript: nil
-)
+//
+//private let _messages = R1AppConfig(
+//    name: "Messages",
+//    open: .init(
+//        firstColor: R1Color(.green),
+//        secondColor: R1Color(.green),
+//        thirdColor: R1Color(.green),
+//        fourthColor: R1Color(.green)
+//    ),
+//    resting: .init(
+//        firstColor: R1Color(.green),
+//        secondColor: R1Color(.green),
+//        thirdColor: R1Color(.green),
+//        fourthColor: R1Color(.green)
+//    ),
+//    pressed: .init(
+//        firstColor: R1Color(.green),
+//        secondColor: R1Color(.green),
+//        thirdColor: R1Color(.green),
+//        fourthColor: R1Color(.green)
+//    ),
+//    firstScript: nil,
+//    secondScript: nil,
+//    thirdScript: nil,
+//    fourthScript: nil
+//)
+//
+//private let _xcode = R1AppConfig(
+//    name: "Xcode",
+//    open: .init(
+//        firstColor: R1Color(.blue),
+//        secondColor: R1Color(.blue),
+//        thirdColor: R1Color(.blue),
+//        fourthColor: R1Color(.blue)
+//    ),
+//    resting: .init(
+//        firstColor: R1Color(.blue),
+//        secondColor: R1Color(.blue),
+//        thirdColor: R1Color(.blue),
+//        fourthColor: R1Color(.blue)
+//    ),
+//    pressed: .init(
+//        firstColor: R1Color(.blue),
+//        secondColor: R1Color(.red),
+//        thirdColor: R1Color(.red),
+//        fourthColor: R1Color(.red)
+//    ),
+//    firstScript: nil,
+//    secondScript: nil,
+//    thirdScript: nil,
+//    fourthScript: nil
+//)
+//
+//private let white = NSColor(red: 1, green: 1, blue: 1, alpha: 1)
+//
+//private let _default = R1AppConfig(
+//    name: "Default",
+//    open: .init(
+//        firstColor: R1Color(.purple),
+//        secondColor: R1Color(.red),
+//        thirdColor: R1Color(.green),
+//        fourthColor: R1Color(.blue)
+//    ),
+//    resting: .init(
+//        firstColor: R1Color(white),
+//        secondColor: R1Color(white),
+//        thirdColor: R1Color(white),
+//        fourthColor: R1Color(white)
+//    ),
+//    pressed: .init(
+//        firstColor: R1Color(white),
+//        secondColor: R1Color(white),
+//        thirdColor: R1Color(white),
+//        fourthColor: R1Color(white)
+//    ),
+//    firstScript: nil,
+//    secondScript: nil,
+//    thirdScript: nil,
+//    fourthScript: nil
+//)

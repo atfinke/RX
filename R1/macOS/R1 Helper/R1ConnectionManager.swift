@@ -46,6 +46,32 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         manager = CBCentralManager(delegate: self, queue: nil)
     }
     
+    // MARK: - Helpers -
+    
+    func send(config: R1AppConfig) {
+        os_log("%{public}s: %{public}s", log: log, type: .info, #function, config.name)
+        buffer.removeAll()
+        
+        compile(config: config)
+        sendFromBuffer()
+    }
+    
+    func startScan() {
+        os_log("%{public}s: scanForPeripherals", log: log, type: .info, #function)
+        manager?.scanForPeripherals(
+            withServices: [R1ConnectionManager.serviceUUID],
+            options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
+        )
+    }
+    
+    func errorOccurred(_ error: String) {
+        if let peripheral = peripheral {
+            manager?.cancelPeripheralConnection(peripheral)
+            self.peripheral = nil
+        }
+        onError(error)
+    }
+    
     // MARK: - CBCentralManagerDelegate -
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -59,11 +85,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .poweredOff:
             print("poweredOff")
         case .poweredOn:
-            os_log("%{public}s: scanForPeripherals", log: log, type: .info, #function)
-            central.scanForPeripherals(
-                withServices: [R1ConnectionManager.serviceUUID],
-                options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
-            )
+            startScan()
         @unknown default:
             fatalError()
         }
@@ -87,12 +109,13 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-        onError("Fail to connect issue")
+        errorOccurred("Fail to connect issue")
     }
     
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-        onError("Disconnect peripheral issue")
+        errorOccurred("Disconnect peripheral issue")
+        startScan()
     }
     
     // MARK: - CBPeripheralDelegate -
@@ -100,10 +123,10 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-            onError("Discover services issue")
+            errorOccurred("Discover services issue")
             return
         }
-        os_log("%{public}s: %{public}s", log: log, type: .info, #function, "\(services)")
+        os_log("%{public}s: %{public}s", log: log, type: .debug, #function, "\(services)")
         for service in services {
             peripheral.discoverCharacteristics(nil, for: service)
         }
@@ -112,11 +135,11 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-            onError("Discover characteristics issue")
+            errorOccurred("Discover characteristics issue")
             return
         }
         
-        os_log("%{public}s: %{public}s", log: log, type: .info, #function, "\(characteristics)")
+        os_log("%{public}s: %{public}s", log: log, type: .debug, #function, "\(characteristics)")
         for characteristic in characteristics {
             if characteristic.properties == .notify {
                 peripheral.setNotifyValue(true, for: characteristic)
@@ -135,7 +158,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s", log: log, type: .info, #function)
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            onError("Update notification state update issue")
+            errorOccurred("Update notification state update issue")
             return
         } else {
             os_log("%{public}s: isNotifying: %{public}s", log: log, type: .info, #function, "\(characteristic.isNotifying)")
@@ -146,7 +169,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            onError("Update value issue")
+            errorOccurred("Update value issue")
             return
         }
         
@@ -163,11 +186,10 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
-        os_log("%{public}s", log: log, type: .info, #function)
+        os_log("%{public}s", log: log, type: .debug, #function)
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            onError("Write value issue")
-            return
+            errorOccurred("Write value issue")
         } else {
             sendFromBuffer()
         }
@@ -175,7 +197,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     
     // MARK: - Buffer -
     
-    func sendFromBuffer() {
+    private func sendFromBuffer() {
         guard !buffer.isEmpty, let peripheral = peripheral, let writeCharacteristic = writeCharacteristic  else { return }
         let data = buffer.removeFirst()
         peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
@@ -191,15 +213,17 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 ","
             buffer.append(hex)
         }
-        
+       
+        /// A little bit of a mess, but want to push over the new open colors asap.
+        /// It takes R1 Proto V6 hardware 1-3 seconds for all the data to be transfered...
+        /// ... and the hardware will show the open color as soon as it has it for all the buttons, even if it hasn't received the other states yet.
         let collections = [
-            config.open,
-            config.resting,
-            config.pressed
+            config.buttons.map { $0.colors.open },
+            config.buttons.map { $0.colors.resting },
+            config.buttons.map { $0.colors.pressed }
         ]
         
-        collections.map { ([$0.firstColor.rgb, $0.secondColor.rgb, $0.thirdColor.rgb, $0.fourthColor.rgb]) }
-            .flatMap { $0 }
+        collections.flatMap { $0 }
             .map { (r: $0.red, g: $0.green, b: $0.blue) }
             .forEach { insert(r: $0.r, g: $0.g, b: $0.b) }
         buffer.append("e")
@@ -217,13 +241,4 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         self.buffer = temp
     }
     
-    // MARK: - Helpers -
-    
-    func send(config: R1AppConfig) {
-        os_log("%{public}s: %{public}s", log: log, type: .info, #function, config.name)
-        buffer.removeAll()
-        
-        compile(config: config)
-        sendFromBuffer()
-    }
 }
