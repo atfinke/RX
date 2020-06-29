@@ -2,37 +2,60 @@ from bluetooth import Bluetooth
 import board
 import time
 
+from config import Config
+
 from lights import Lights, GlobalLightsState, SingleLightOverrideState
 from buttons import Buttons
 from helpers import hex_to_rgb, num_tuple_array_from_buffer
 
-from input_test import InputTest
-from light_test import LightTest
+from debug_mode import DebugMode
 
-class Config:
-    BUTTONS = [board.D9, board.D10, board.D11, board.D12]
-    TIME_TO_START_TRANSITION = 5
-    TRANSITION_DURATION = 2
+import neopixel
 
 class Main:
 
     def __init__(self):
         print("__init__")
+        internal_led = neopixel.NeoPixel(board.NEOPIXEL, 1)[0]
+        internal_led = (255, 0, 0)
+
         self.buttons = Buttons(Config.BUTTONS)
         self.buttons_count = len(Config.BUTTONS)
-        self.lights = Lights(self.buttons_count)
+
+        time.sleep(1)
+        _, states = self.buttons.states()
+        if states[:1] == [True]:
+            DebugMode(self.buttons, Config.BUTTON_LED_ORDER)
+
+        self.lights = Lights(Config.BUTTON_LED_ORDER)
+        self.lights.set_to_off()
+        self.lights.tick()
+        internal_led = (0, 255, 0)
 
         self.started_receiving_time = None
         self.finished_receiving = False
         self.transition_start_time = None
+        self.buffer_rgbs = []
+        self.incomplete_hex = ""
+        internal_led = (0, 0, 255)
 
         self.bluetooth = Bluetooth()
         self.bluetooth.connect()
-
-        self.buffer_rgbs = []
-        self.incomplete_hex = ""
+        self.lights.set_to_blue()
 
         print("connected")
+        internal_led = (0, 0, 0)
+
+    def _reset_bluetooth(self):
+        self.bluetooth.disconnect()
+        self.lights.set_to_on()
+        self.started_receiving_time = None
+        self.finished_receiving = False
+        self.transition_start_time = None
+        self.buffer_rgbs = []
+        self.incomplete_hex = ""
+        self.bluetooth.connect()
+        self.lights.set_to_blue()
 
     def run(self):
         while True:
@@ -41,19 +64,27 @@ class Main:
                 self.update_buttons()
                 self.lights.tick()
                 time.sleep(0.05)
-            self.lights.set_to_white()
+
+            print("not connected")
+            self.lights.set_to_on()
             self.bluetooth.connect()
+            self.lights.set_to_blue()
 
     # Buttons
 
     def update_buttons(self):
         # adjusted_states = when pressed, only 'True' for first tick
         adjusted_states, states = self.buttons.states()
+
+        if states[:4] == [True, True, True, True]:
+            self._reset_bluetooth()
+            return
+
         for (index, is_on) in enumerate(adjusted_states):
             if is_on:
                 self.bluetooth.write(index + 1)
 
-        # current_states = actual states(variable updated
+        # current_states = actual states (variable updated)
         for (index, is_on) in enumerate(states):
             state = SingleLightOverrideState.PRESSED if is_on else SingleLightOverrideState.NONE
             self.lights.set_single_state(state, index)
@@ -130,8 +161,6 @@ class Main:
                 self.received(rgb_values)
 
 print("On")
-# InputTest()
-# LightTest()
 
 main = Main()
 main.run()

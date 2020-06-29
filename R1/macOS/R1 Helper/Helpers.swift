@@ -21,7 +21,7 @@ struct Helpers {
             return
         }
         
-        if button >= config.buttons.count, let action = config.buttons[button - 1].action {
+        if button <= config.buttons.count, let action = config.buttons[button - 1].action {
             ScriptRunner.run(script: action)
         } else {
             ScriptRunner.showNotification(title: "R1 Not Configured", text: "Pressed button \(button) with no script for \(config.name)")

@@ -17,7 +17,9 @@ class SingleLightOverrideState:
 
 class Lights:
 
-    def __init__(self, light_count):
+    def __init__(self, light_order):
+        self._light_order = light_order
+        light_count = len(light_order)
         assert(light_count <= 4)
 
         self._colors = {
@@ -49,10 +51,9 @@ class Lights:
     def set_transition_progress(self, progress):
         self._transition_progress = progress
 
-
     def _update_lights_to_colors(self, colors):
         for index, color in enumerate(colors):
-            self._leds[index] = color
+            self._leds[self._light_order[index]] = color
 
     def _update_to_global_lights_state(self):
         colors = self._colors[self._global_lights_state]
@@ -70,24 +71,24 @@ class Lights:
 
         for index, state in enumerate(self._single_light_override_state):
             if state == SingleLightOverrideState.PRESSED:
-                self._leds[index] = self._colors[GlobalLightsState.PRESSED][index]
-
+                self._leds[self._light_order[index]] = self._colors[GlobalLightsState.PRESSED][index]
 
         self._leds.show()
 
-
-
-
-
-    def _update_to_color(self, color):
+    def set_to_on(self):
         for i in range(4):
-            self.leds[i] = color[i]
+            self._leds[self._light_order[i]] = (65535, 65535, 65535)
+        self._leds.show()
 
-    def set_to_white(self):
+    def set_to_off(self):
         for i in range(4):
-            self.leds[i] = white_tuple_array()
+            self._leds[self._light_order[i]] = (0, 0, 0)
+        self._leds.show()
 
-
+    def set_to_blue(self):
+        for i in range(4):
+            self._leds[self._light_order[i]] = (0, 0, 65535)
+        self._leds.show()
 
 
 

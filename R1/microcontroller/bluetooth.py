@@ -5,29 +5,35 @@ from adafruit_ble.services.nordic import UARTService
 class Bluetooth:
 
     def __init__(self):
-        self.radio = BLERadio()
-        self.radio.name = "R1"
+        self._radio = BLERadio()
+        self._radio.name = "R1"
 
-        self.uart_service = UARTService()
-        self.advertisement = ProvideServicesAdvertisement(self.uart_service)
+        self._uart_service = UARTService()
+        self._advertisement = ProvideServicesAdvertisement(self._uart_service)
 
     def connect(self):
-        self.radio.start_advertising(self.advertisement)
+        self._radio.start_advertising(self._advertisement)
         while not self.is_connected():
             pass
-        self.radio.stop_advertising()
+
+        for connection in self._radio.connections:
+            self._connection = connection
+        self._radio.stop_advertising()
+
+    def disconnect(self):
+        self._connection.disconnect()
 
     def is_connected(self):
-        return self.radio.connected
+        return self._radio.connected
 
     def write(self, value):
-        self.uart_service.write(str(value))
+        self._uart_service.write(str(value))
 
     def read(self):
-        if self.uart_service.in_waiting == 0:
+        if self._uart_service.in_waiting == 0:
             return None
 
-        data = self.uart_service.read(32)
+        data = self._uart_service.read(32)
         if data is not None:
             return ''.join([chr(b) for b in data])
         else:
