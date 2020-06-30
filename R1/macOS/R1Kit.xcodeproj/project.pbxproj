@@ -7,11 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1458C91724AACC260018477C /* R1AppButtonStateColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91624AACC260018477C /* R1AppButtonStateColors.swift */; };
+		1458C91924AACC3E0018477C /* R1AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91824AACC3E0018477C /* R1AppButton.swift */; };
 		14A8B8082480FE9100E49B9F /* R1ColorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */; };
 		14FC630F247C921200E9B7BA /* R1Kit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14FC630D247C921200E9B7BA /* R1Kit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		14FC6316247C923800E9B7BA /* R1URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6315247C923800E9B7BA /* R1URL.swift */; };
-		14FC631D247C93CE00E9B7BA /* R1Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631C247C93CE00E9B7BA /* R1Settings.swift */; };
-		14FC631F247C948000E9B7BA /* R1AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631E247C948000E9B7BA /* R1AppConfig.swift */; };
+		14FC631D247C93CE00E9B7BA /* R1Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631C247C93CE00E9B7BA /* R1Preferences.swift */; };
+		14FC631F247C948000E9B7BA /* R1App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631E247C948000E9B7BA /* R1App.swift */; };
 		14FC6321247C94AB00E9B7BA /* R1Script.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6320247C94AB00E9B7BA /* R1Script.swift */; };
 		14FC6325247C94DB00E9B7BA /* R1Color.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6324247C94DB00E9B7BA /* R1Color.swift */; };
 		14FC6327247C950800E9B7BA /* R1ColorsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6326247C950800E9B7BA /* R1ColorsProvider.swift */; };
@@ -19,13 +21,15 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		1458C91624AACC260018477C /* R1AppButtonStateColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1AppButtonStateColors.swift; sourceTree = "<group>"; };
+		1458C91824AACC3E0018477C /* R1AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1AppButton.swift; sourceTree = "<group>"; };
 		14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1ColorProvider.swift; sourceTree = "<group>"; };
 		14FC630A247C921200E9B7BA /* R1Kit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = R1Kit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14FC630D247C921200E9B7BA /* R1Kit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = R1Kit.h; sourceTree = "<group>"; };
 		14FC630E247C921200E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6315247C923800E9B7BA /* R1URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1URL.swift; sourceTree = "<group>"; };
-		14FC631C247C93CE00E9B7BA /* R1Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1Settings.swift; sourceTree = "<group>"; };
-		14FC631E247C948000E9B7BA /* R1AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1AppConfig.swift; sourceTree = "<group>"; };
+		14FC631C247C93CE00E9B7BA /* R1Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1Preferences.swift; sourceTree = "<group>"; };
+		14FC631E247C948000E9B7BA /* R1App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1App.swift; sourceTree = "<group>"; };
 		14FC6320247C94AB00E9B7BA /* R1Script.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1Script.swift; sourceTree = "<group>"; };
 		14FC6324247C94DB00E9B7BA /* R1Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1Color.swift; sourceTree = "<group>"; };
 		14FC6326247C950800E9B7BA /* R1ColorsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1ColorsProvider.swift; sourceTree = "<group>"; };
@@ -43,6 +47,35 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1458C91A24AACDEC0018477C /* Colors */ = {
+			isa = PBXGroup;
+			children = (
+				14FC6324247C94DB00E9B7BA /* R1Color.swift */,
+				14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */,
+				14FC6326247C950800E9B7BA /* R1ColorsProvider.swift */,
+			);
+			path = Colors;
+			sourceTree = "<group>";
+		};
+		1458C91B24AACDF70018477C /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				14FC6315247C923800E9B7BA /* R1URL.swift */,
+				14FC6320247C94AB00E9B7BA /* R1Script.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		1458C91C24AACE030018477C /* App */ = {
+			isa = PBXGroup;
+			children = (
+				14FC631E247C948000E9B7BA /* R1App.swift */,
+				1458C91824AACC3E0018477C /* R1AppButton.swift */,
+				1458C91624AACC260018477C /* R1AppButtonStateColors.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
 		14FC6300247C921200E9B7BA = {
 			isa = PBXGroup;
 			children = (
@@ -63,14 +96,11 @@
 			isa = PBXGroup;
 			children = (
 				14FC630D247C921200E9B7BA /* R1Kit.h */,
-				14FC631C247C93CE00E9B7BA /* R1Settings.swift */,
-				14FC631E247C948000E9B7BA /* R1AppConfig.swift */,
+				14FC631C247C93CE00E9B7BA /* R1Preferences.swift */,
 				14FC6328247C95F800E9B7BA /* R1Notifier.swift */,
-				14FC6315247C923800E9B7BA /* R1URL.swift */,
-				14FC6320247C94AB00E9B7BA /* R1Script.swift */,
-				14FC6324247C94DB00E9B7BA /* R1Color.swift */,
-				14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */,
-				14FC6326247C950800E9B7BA /* R1ColorsProvider.swift */,
+				1458C91C24AACE030018477C /* App */,
+				1458C91B24AACDF70018477C /* Utils */,
+				1458C91A24AACDEC0018477C /* Colors */,
 				14FC630E247C921200E9B7BA /* Info.plist */,
 			);
 			path = R1Kit;
@@ -156,13 +186,15 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14FC631D247C93CE00E9B7BA /* R1Settings.swift in Sources */,
+				14FC631D247C93CE00E9B7BA /* R1Preferences.swift in Sources */,
 				14FC6325247C94DB00E9B7BA /* R1Color.swift in Sources */,
+				1458C91724AACC260018477C /* R1AppButtonStateColors.swift in Sources */,
 				14FC6321247C94AB00E9B7BA /* R1Script.swift in Sources */,
-				14FC631F247C948000E9B7BA /* R1AppConfig.swift in Sources */,
+				14FC631F247C948000E9B7BA /* R1App.swift in Sources */,
 				14FC6327247C950800E9B7BA /* R1ColorsProvider.swift in Sources */,
 				14A8B8082480FE9100E49B9F /* R1ColorProvider.swift in Sources */,
 				14FC6329247C95F800E9B7BA /* R1Notifier.swift in Sources */,
+				1458C91924AACC3E0018477C /* R1AppButton.swift in Sources */,
 				14FC6316247C923800E9B7BA /* R1URL.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

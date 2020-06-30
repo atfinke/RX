@@ -2,10 +2,10 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:R1 Config.xcodeproj">
+      location = "group:/Users/andrewfinke/Projects/RX/R1/macOS/R1 Preferences.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:R1 Helper.xcodeproj">
+      location = "group:/Users/andrewfinke/Projects/RX/R1/macOS/R1d.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:R1Kit.xcodeproj">
