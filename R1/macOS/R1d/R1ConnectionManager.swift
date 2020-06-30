@@ -12,6 +12,11 @@ import R1Kit
 
 class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     
+    // MARK: - Types -
+    
+    enum Message {
+        case ledsOff, disconnect, appData(R1App)
+    }
     // MARK: - Properties -
     
     private var manager: CBCentralManager?
@@ -48,12 +53,28 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     
     // MARK: - Helpers -
     
-    func send(app: R1App) {
-        os_log("%{public}s: %{public}s", log: log, type: .info, #function, app.name)
+    func send(message: Message) {
         buffer.removeAll()
         
-        compile(app: app)
-        sendFromBuffer()
+        switch message {
+        case .ledsOff:
+            os_log("%{public}s: ledsOff", log: log, type: .info, #function)
+            guard let data = "x".data(using: .utf8) ,
+                let peripheral = peripheral,
+                let writeCharacteristic = writeCharacteristic else { return }
+            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
+        case .disconnect:
+            os_log("%{public}s: disconnect", log: log, type: .info, #function)
+            guard let data = "q".data(using: .utf8) ,
+                let peripheral = peripheral,
+                let writeCharacteristic = writeCharacteristic else { return }
+            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
+        case .appData(let app):
+            os_log("%{public}s: %{public}s", log: log, type: .info, #function, app.name)
+             
+            compile(app: app)
+            sendFromBuffer()
+        }
     }
     
     func startScan() {
@@ -75,15 +96,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
         onError(error)
     }
-    
-    func turnOffLEDS() {
-        buffer.removeAll()
-        guard let data = "x".data(using: .utf8) ,
-            let peripheral = peripheral,
-            let writeCharacteristic = writeCharacteristic else { return }
-        peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
-    }
-    
+
     // MARK: - CBCentralManagerDelegate -
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {

@@ -20,7 +20,7 @@ public struct R1AppButton: Codable, Equatable, Hashable, Identifiable {
     
     public init(number: Int) {
         id = number
-        colors = R1AppButtonStateColors(resting: R1Color(.red), pressed: R1Color(.green))
+        colors = R1AppButtonStateColors(resting: R1Color(.blue), pressed: R1Color(.white))
         action = nil
     }
 

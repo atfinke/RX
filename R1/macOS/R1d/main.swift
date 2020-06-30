@@ -17,7 +17,7 @@ class Main {
     // MARK: - Properties -
     
     private var manager: R1ConnectionManager?
-    private lazy var notifications = Notifications(onAppChange: onAppChange, onSleepStateChange: onSleepStateChange)
+    private lazy var notifications = Notifications(onAppChange: onAppChange, onMachineStateChange: onMachineStateChange)
     
     private var preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
     private var activeApp: R1App?
@@ -39,11 +39,16 @@ class Main {
     
     // MARK: - Notifications -
     
-    func onSleepStateChange(_ isSleeping: Bool) {
-        if isSleeping {
-            self.manager?.turnOffLEDS()
-        } else if let app = self.activeApp {
-            self.manager?.send(app: app)
+    func onMachineStateChange(_ state: Notifications.MachineState) {
+        switch state {
+        case .on:
+            if let app = self.activeApp {
+                self.manager?.send(message: .appData(app))
+            }
+        case .sleeping:
+            self.manager?.send(message: .ledsOff)
+        case .off:
+            self.manager?.send(message: .disconnect)
         }
     }
     
@@ -64,8 +69,8 @@ class Main {
         }
         
         self.activeApp = newApp
-        guard !notifications.isSleeping else { return }
-        manager?.send(app: newApp)
+        guard notifications.state == .on else { return }
+        manager?.send(message: .appData(newApp))
     }
 }
 

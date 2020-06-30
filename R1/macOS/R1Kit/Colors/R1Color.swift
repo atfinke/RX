@@ -27,8 +27,12 @@ public struct R1Color: Codable, Equatable, Hashable {
     // MARK: - Initalization -
     
     public init(_ color: NSColor) {
-        red = Double(color.redComponent)
-        green = Double(color.greenComponent)
-        blue = Double(color.blueComponent)
+        // handels converting colorspace
+        guard let ciColor = CIColor(color: color) else {
+            fatalError()
+        }
+        red = Double(ciColor.red)
+        green = Double(ciColor.green)
+        blue = Double(ciColor.blue)
     }
 }

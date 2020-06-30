@@ -11,15 +11,21 @@ import os.log
 
 class Notifications {
     
+    enum MachineState {
+        case on, sleeping, off
+    }
+    
     // MARK: - Properties -
     
     var activeAppName: String?
-    var isSleeping = false
+    
+    var state = MachineState.on
+    
     private let log = OSLog(subsystem: "com.andrewfinke.R1", category: "notifications")
     
     // MARK: - Initalization -
     
-    init(onAppChange: @escaping (_ appName: String, _ lastAppName: String?) -> Void, onSleepStateChange: @escaping (_ isSleeping: Bool) -> Void) {
+    init(onAppChange: @escaping (_ appName: String, _ lastAppName: String?) -> Void, onMachineStateChange: @escaping (_ state: MachineState) -> Void) {
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
@@ -34,13 +40,23 @@ class Notifications {
         })
         
         NSWorkspace.shared.notificationCenter.addObserver(
+            forName: NSWorkspace.willPowerOffNotification,
+            object: nil,
+            queue: nil,
+            using: { _ in
+                os_log("%{public}s: willPowerOffNotification", log: self.log, type: .info, #function)
+                self.state = .off
+                onMachineStateChange(self.state)
+        })
+        
+        NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.willSleepNotification,
             object: nil,
             queue: nil,
             using: { _ in
                 os_log("%{public}s: willSleepNotification", log: self.log, type: .info, #function)
-                self.isSleeping = true
-                onSleepStateChange(self.isSleeping)
+                self.state = .sleeping
+                onMachineStateChange(self.state)
         })
         
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -49,8 +65,8 @@ class Notifications {
             queue: nil,
             using: { _ in
                 os_log("%{public}s: didWakeNotification", log: self.log, type: .info, #function)
-                self.isSleeping = false
-                onSleepStateChange(self.isSleeping)
+                self.state = .on
+                onMachineStateChange(self.state)
         })
     }
 }
