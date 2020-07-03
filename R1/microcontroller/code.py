@@ -112,6 +112,7 @@ class Main:
             buffer = num_tuple_array_from_buffer(buffer=self.buffer_rgbs, offset=self.buttons_count, light_count=self.buttons_count)
             self.lights.update_pressed_colors(buffer)
             self.transition_start_time = time.monotonic()
+            self.incomplete_hex = ""
 
 
     def clear_buffers(self):
@@ -131,11 +132,11 @@ class Main:
                 str_values = data.split("e")[-1].split(",")[1:]
             elif is_new and "x" in data:
                 self.clear_buffers()
-                self.lights.set_to_off()
                 self.host_machine_sleeping = True
+                self.lights.set_to_colors_tuple((0, 0, 0))
             elif is_new and "q" in data:
                 self.clear_buffers()
-                self.lights.set_to_off()
+                self.lights.set_to_colors_tuple((0, 0, 0))
             elif is_new:
                 str_values = (self.incomplete_hex + data).split(",")
             else:

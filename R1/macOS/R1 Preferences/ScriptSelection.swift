@@ -27,7 +27,8 @@ struct ScriptSelection: View {
                     self.button.action = script
                 }
             }, label: {
-                Text(title).frame(width: 65)
+                Text(title)
+                    .frame(width: 65)
             })
             scriptLabel
                 .font(.system(size: 9, weight: .regular, design: .monospaced))

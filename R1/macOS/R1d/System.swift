@@ -1,5 +1,5 @@
 //
-//  Notifications.swift
+//  System.swift
 //  R1d
 //
 //  Created by Andrew Finke on 6/29/20.
@@ -9,23 +9,20 @@
 import AppKit
 import os.log
 
-class Notifications {
+class System {
     
-    enum MachineState {
-        case on, sleeping, off
+    enum State {
+        case on(appName: String), sleeping, off
     }
     
     // MARK: - Properties -
     
-    var activeAppName: String?
-    
-    var state = MachineState.on
-    
+    var onStateChange: ((_ state: State) -> Void)?
     private let log = OSLog(subsystem: "com.andrewfinke.R1", category: "notifications")
     
     // MARK: - Initalization -
     
-    init(onAppChange: @escaping (_ appName: String, _ lastAppName: String?) -> Void, onMachineStateChange: @escaping (_ state: MachineState) -> Void) {
+    init() {
         NSWorkspace.shared.notificationCenter.addObserver(
             forName: NSWorkspace.didActivateApplicationNotification,
             object: nil,
@@ -33,10 +30,8 @@ class Notifications {
             using: { notification in
                 let appName = (notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication)?.localizedName ?? "N/A"
                 os_log("%{public}s: didActivateApplicationNotification: %{public}s", log: self.log, type: .info, #function, appName)
-                
-                let lastAppName = self.activeAppName
-                self.activeAppName = appName
-                onAppChange(appName, lastAppName)
+
+                self.onStateChange?(.on(appName: appName))
         })
         
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -45,8 +40,7 @@ class Notifications {
             queue: nil,
             using: { _ in
                 os_log("%{public}s: willPowerOffNotification", log: self.log, type: .info, #function)
-                self.state = .off
-                onMachineStateChange(self.state)
+                self.onStateChange?(.off)
         })
         
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -55,8 +49,7 @@ class Notifications {
             queue: nil,
             using: { _ in
                 os_log("%{public}s: willSleepNotification", log: self.log, type: .info, #function)
-                self.state = .sleeping
-                onMachineStateChange(self.state)
+                self.onStateChange?(.sleeping)
         })
         
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -65,8 +58,8 @@ class Notifications {
             queue: nil,
             using: { _ in
                 os_log("%{public}s: didWakeNotification", log: self.log, type: .info, #function)
-                self.state = .on
-                onMachineStateChange(self.state)
+                guard let appName = NSWorkspace.shared.frontmostApplication?.localizedName else { return }
+                self.onStateChange?(.on(appName: appName))
         })
     }
 }

@@ -9,6 +9,6 @@ class Config:
     # BUTTON_LED_ORDER = [3, 2, 1, 0]
 
 
-    TRANSITION_DURATION = 0.25
+    TRANSITION_DURATION = 0.5
 
     MAX_LED_VALUE = 65535

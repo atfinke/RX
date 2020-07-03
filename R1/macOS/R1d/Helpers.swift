@@ -37,7 +37,7 @@ struct Helpers {
     
     static func showNotification(title: String, text: String) {
         let source = """
-        display notification "\(text)" with title "\(title)" sound name "Ping"
+        display notification "\(text)" with title "\(title)"
         """
 
         guard let script = NSAppleScript(source: source) else {

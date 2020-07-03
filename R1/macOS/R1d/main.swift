@@ -16,8 +16,8 @@ class Main {
     
     // MARK: - Properties -
     
-    private var manager: R1ConnectionManager?
-    private lazy var notifications = Notifications(onAppChange: onAppChange, onMachineStateChange: onMachineStateChange)
+    private let system = System()
+    private let manager = R1ConnectionManager()
     
     private var preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
     private var activeApp: R1App?
@@ -25,52 +25,50 @@ class Main {
     // MARK: - Initalization -
     
     init() {
-        manager = R1ConnectionManager(onConnect: {
-            Helpers.showNotification(title: "R1 Connected", text: "-")
-            if let name = self.notifications.activeAppName {
-                self.onAppChange(name, nil)
-            }
-        }, onPress: { number in
-            Helpers.pressed(button: number, for: self.activeApp)
-        }, onError: { error in
-            Helpers.showNotification(title: "R1 Error", text: error)
-        })
+        system.onStateChange = onSystemStateChange(_:)
+        manager.onUpdate = onR1Update(_:)
     }
     
-    // MARK: - Notifications -
+    // MARK: - System -
     
-    func onMachineStateChange(_ state: Notifications.MachineState) {
+    func onSystemStateChange(_ state: System.State) {
         switch state {
-        case .on:
-            if let app = self.activeApp {
-                self.manager?.send(message: .appData(app))
+        case .on(let appName):
+            if let lastAppName = self.activeApp?.name, lastAppName == "R1 Preferences" {
+                self.preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
             }
+            let newApp: R1App
+            let apps = preferences.customApps + preferences.defaultApps
+            if let activeApp = apps.first(where: { $0.name == appName }) {
+                newApp = activeApp
+            } else if let def = apps.first(where: { $0.name == "Default" }) {
+                newApp = def
+            } else {
+                fatalError()
+            }
+            activeApp = newApp
+            manager.send(message: .appData(newApp))
         case .sleeping:
-            self.manager?.send(message: .ledsOff)
+            manager.send(message: .ledsOff)
         case .off:
-            self.manager?.send(message: .disconnect)
+            manager.send(message: .disconnect)
         }
     }
     
-    func onAppChange(_ appName: String, _ lastAppName: String?) {
-        if lastAppName == "R1 Preferences" {
-            self.preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
+    // MARK: - Connection -
+    
+    func onR1Update(_ update: R1ConnectionManager.Update) {
+        switch update {
+        case .connected:
+            Helpers.showNotification(title: "R1 Connected", text: "-")
+            if let app = self.activeApp {
+                self.manager.send(message: .appData(app))
+            }
+        case .error(let error):
+            Helpers.showNotification(title: "R1 Error", text: error)
+        case .buttonPressed(let number):
+            Helpers.pressed(button: number, for: self.activeApp)
         }
-        
-        let newApp: R1App
-        
-        let appPreferences = preferences.customApps + preferences.defaultApps
-        if let activeApp = appPreferences.first(where: { $0.name == appName }) {
-            newApp = activeApp
-        } else if let def = appPreferences.first(where: { $0.name == "Default" }) {
-            newApp = def
-        } else {
-            fatalError()
-        }
-        
-        self.activeApp = newApp
-        guard notifications.state == .on else { return }
-        manager?.send(message: .appData(newApp))
     }
 }
 

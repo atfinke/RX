@@ -75,26 +75,3 @@ struct AppView: View {
         
     }
 }
-
-struct ContentView: View {
-    @State var preferences = R1Preferences(rxButtons: RXHardware.numberOfButtons)
-    
-    var body: some View {
-        return NavigationView {
-            MasterListView()
-                .environmentObject(preferences)
-                .frame(width: 160)
-            Text("Select an App")
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-        }
-        .frame(width: 620, height: 260)
-    }
-}
-
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-        //.environmentObject(UserData())
-    }
-}

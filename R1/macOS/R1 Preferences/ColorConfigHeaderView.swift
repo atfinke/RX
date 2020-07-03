@@ -15,6 +15,5 @@ struct ColorCollectionHeaderView: View {
             text: text,
             font: Font.system(size: 15, weight: .medium, design: .rounded)
         )
-            .padding(.bottom, 10)
     }
 }

@@ -17,6 +17,11 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     enum Message {
         case ledsOff, disconnect, appData(R1App)
     }
+    
+    enum Update {
+        case connected, error(String), buttonPressed(Int)
+    }
+    
     // MARK: - Properties -
     
     private var manager: CBCentralManager?
@@ -34,19 +39,12 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     
     // MARK: - Callbacks -
     
-    let onConnect: () -> Void
-    let onPress: (Int) -> Void
-    let onError: (String) -> Void
+    var onUpdate: ((Update) -> Void)?
     
     // MARK: - Initalization -
     
-    init(onConnect: @escaping () -> Void, onPress: @escaping (Int) -> Void, onError: @escaping (String) -> Void) {
+    override init() {
         os_log("%{public}s", log: log, type: .info, #function)
-        
-        self.onConnect = onConnect
-        self.onPress = onPress
-        self.onError = onError
-        
         super.init()
         manager = CBCentralManager(delegate: self, queue: nil)
     }
@@ -60,18 +58,18 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         case .ledsOff:
             os_log("%{public}s: ledsOff", log: log, type: .info, #function)
             guard let data = "x".data(using: .utf8) ,
-                let peripheral = peripheral,
-                let writeCharacteristic = writeCharacteristic else { return }
+                  let peripheral = peripheral,
+                  let writeCharacteristic = writeCharacteristic else { return }
             peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
         case .disconnect:
             os_log("%{public}s: disconnect", log: log, type: .info, #function)
             guard let data = "q".data(using: .utf8) ,
-                let peripheral = peripheral,
-                let writeCharacteristic = writeCharacteristic else { return }
+                  let peripheral = peripheral,
+                  let writeCharacteristic = writeCharacteristic else { return }
             peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
         case .appData(let app):
             os_log("%{public}s: %{public}s", log: log, type: .info, #function, app.name)
-             
+            
             compile(app: app)
             sendFromBuffer()
         }
@@ -94,9 +92,9 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             manager?.cancelPeripheralConnection(peripheral)
             self.peripheral = nil
         }
-        onError(error)
+        onUpdate?(.error(error))
     }
-
+    
     // MARK: - CBCentralManagerDelegate -
     
     func centralManagerDidUpdateState(_ central: CBCentralManager) {
@@ -187,7 +185,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             return
         } else {
             os_log("%{public}s: isNotifying: %{public}s", log: log, type: .info, #function, "\(characteristic.isNotifying)")
-            onConnect()
+            onUpdate?(.connected)
         }
     }
     
@@ -199,15 +197,15 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         }
         
         guard readCharacteristic == characteristic,
-            let value = characteristic.value,
-            let str = String(data: value, encoding: .utf8),
-            let button = Int(str) else {
+              let value = characteristic.value,
+              let str = String(data: value, encoding: .utf8),
+              let button = Int(str) else {
             os_log("%{public}s: parsing error", log: log, type: .error, #function)
             return
         }
         
         os_log("%{public}s: pressed: %{public}i", log: log, type: .info, #function, button)
-        onPress(button)
+        onUpdate?(.buttonPressed(button))
     }
     
     func peripheral(_ peripheral: CBPeripheral, didWriteValueFor characteristic: CBCharacteristic, error: Error?) {
@@ -238,7 +236,7 @@ class R1ConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
                 ","
             buffer.append(hex)
         }
-       
+        
         /// A little bit of a mess, but want to push over the new open colors asap.
         /// It takes R1 Proto V6 hardware 1-3 seconds for all the data to be transfered...
         /// ... and the hardware will show the open color as soon as it has it for all the buttons, even if it hasn't received the other states yet.

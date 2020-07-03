@@ -33,7 +33,7 @@ class Bluetooth:
         if self._uart_service.in_waiting == 0:
             return None
 
-        data = self._uart_service.read(32)
+        data = self._uart_service.read(self._uart_service.in_waiting)
         if data is not None:
             return ''.join([chr(b) for b in data])
         else:
