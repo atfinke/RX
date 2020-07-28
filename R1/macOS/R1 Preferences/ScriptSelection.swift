@@ -10,16 +10,16 @@ import SwiftUI
 import R1Kit
 
 struct ScriptSelection: View {
-    
+
     // MARK: - Properties -
-    
+
     @Binding var button: R1AppButton
-    
+
     let title: String
     private let openPanel = OpenPanelBridge()
-    
+
     // MARK: - Body -
-    
+
     var body: some View {
         VStack {
             Button(action: {
@@ -36,7 +36,7 @@ struct ScriptSelection: View {
                 .frame(height: 20)
         }
     }
-    
+
     private var scriptLabel: some View {
         if let script = button.action {
             return Text(script.name)

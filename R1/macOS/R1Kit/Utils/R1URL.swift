@@ -9,30 +9,30 @@
 import Foundation
 
 public struct R1URL {
-    
+
     public static var support: URL = {
-        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "72S993BNAV.R1") else {
-            fatalError()
+        guard let container = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: R1DeveloperConfig.appGroup) else {
+            fatalError("Check app group in R1DeveloperConfig")
         }
         let url = container.appendingPathComponent("R1")
         createDirectory(at: url)
         return url
     }()
-    
+
     public static var scripts: URL = {
         let url = support.appendingPathComponent("scripts")
         createDirectory(at: url)
         return url
     }()
-    
+
     public static func newScript() -> URL {
         return scripts.appendingPathComponent(UUID().uuidString)
     }
-    
+
     public static func appData() -> URL {
         return support.appendingPathComponent("appData")
     }
-    
+
     private static func createDirectory(at url: URL) {
         try? FileManager.default.createDirectory(
             at: url,

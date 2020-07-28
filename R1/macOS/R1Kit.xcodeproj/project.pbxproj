@@ -7,10 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		144CBB1E24C6975C0091BFF2 /* R1DeveloperConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 144CBB1D24C6975C0091BFF2 /* R1DeveloperConfig.swift */; };
 		1458C91724AACC260018477C /* R1AppButtonStateColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91624AACC260018477C /* R1AppButtonStateColors.swift */; };
 		1458C91924AACC3E0018477C /* R1AppButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91824AACC3E0018477C /* R1AppButton.swift */; };
 		14A8B8082480FE9100E49B9F /* R1ColorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */; };
-		14FC630F247C921200E9B7BA /* R1Kit.h in Headers */ = {isa = PBXBuildFile; fileRef = 14FC630D247C921200E9B7BA /* R1Kit.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		14B2840224C63EEB000BA96C /* IconProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B2840124C63EEB000BA96C /* IconProcessing.swift */; };
 		14FC6316247C923800E9B7BA /* R1URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6315247C923800E9B7BA /* R1URL.swift */; };
 		14FC631D247C93CE00E9B7BA /* R1Preferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631C247C93CE00E9B7BA /* R1Preferences.swift */; };
 		14FC631F247C948000E9B7BA /* R1App.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631E247C948000E9B7BA /* R1App.swift */; };
@@ -21,11 +22,12 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		144CBB1D24C6975C0091BFF2 /* R1DeveloperConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1DeveloperConfig.swift; sourceTree = "<group>"; };
 		1458C91624AACC260018477C /* R1AppButtonStateColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1AppButtonStateColors.swift; sourceTree = "<group>"; };
 		1458C91824AACC3E0018477C /* R1AppButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1AppButton.swift; sourceTree = "<group>"; };
 		14A8B8072480FE9100E49B9F /* R1ColorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1ColorProvider.swift; sourceTree = "<group>"; };
+		14B2840124C63EEB000BA96C /* IconProcessing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconProcessing.swift; sourceTree = "<group>"; };
 		14FC630A247C921200E9B7BA /* R1Kit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = R1Kit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		14FC630D247C921200E9B7BA /* R1Kit.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = R1Kit.h; sourceTree = "<group>"; };
 		14FC630E247C921200E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6315247C923800E9B7BA /* R1URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1URL.swift; sourceTree = "<group>"; };
 		14FC631C247C93CE00E9B7BA /* R1Preferences.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = R1Preferences.swift; sourceTree = "<group>"; };
@@ -60,8 +62,11 @@
 		1458C91B24AACDF70018477C /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				144CBB1D24C6975C0091BFF2 /* R1DeveloperConfig.swift */,
 				14FC6315247C923800E9B7BA /* R1URL.swift */,
 				14FC6320247C94AB00E9B7BA /* R1Script.swift */,
+				14FC6328247C95F800E9B7BA /* R1Notifier.swift */,
+				14B2840124C63EEB000BA96C /* IconProcessing.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -95,12 +100,10 @@
 		14FC630C247C921200E9B7BA /* R1Kit */ = {
 			isa = PBXGroup;
 			children = (
-				14FC630D247C921200E9B7BA /* R1Kit.h */,
 				14FC631C247C93CE00E9B7BA /* R1Preferences.swift */,
-				14FC6328247C95F800E9B7BA /* R1Notifier.swift */,
 				1458C91C24AACE030018477C /* App */,
-				1458C91B24AACDF70018477C /* Utils */,
 				1458C91A24AACDEC0018477C /* Colors */,
+				1458C91B24AACDF70018477C /* Utils */,
 				14FC630E247C921200E9B7BA /* Info.plist */,
 			);
 			path = R1Kit;
@@ -113,7 +116,6 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				14FC630F247C921200E9B7BA /* R1Kit.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,7 +146,7 @@
 		14FC6301247C921200E9B7BA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Andrew Finke";
 				TargetAttributes = {
 					14FC6309247C921200E9B7BA = {
@@ -191,7 +193,9 @@
 				1458C91724AACC260018477C /* R1AppButtonStateColors.swift in Sources */,
 				14FC6321247C94AB00E9B7BA /* R1Script.swift in Sources */,
 				14FC631F247C948000E9B7BA /* R1App.swift in Sources */,
+				144CBB1E24C6975C0091BFF2 /* R1DeveloperConfig.swift in Sources */,
 				14FC6327247C950800E9B7BA /* R1ColorsProvider.swift in Sources */,
+				14B2840224C63EEB000BA96C /* IconProcessing.swift in Sources */,
 				14A8B8082480FE9100E49B9F /* R1ColorProvider.swift in Sources */,
 				14FC6329247C95F800E9B7BA /* R1Notifier.swift in Sources */,
 				1458C91924AACC3E0018477C /* R1AppButton.swift in Sources */,
@@ -228,6 +232,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -291,6 +296,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -325,6 +331,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;
@@ -351,6 +358,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEFINES_MODULE = YES;

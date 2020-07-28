@@ -11,6 +11,20 @@ import R1Kit
 
 class OpenPanelBridge {
 
+    // MARK: - Types -
+
+    private struct AppInfoPlist: Decodable {
+        let name: String
+        let bundleID: String
+
+        enum CodingKeys: String, CodingKey {
+            case name = "CFBundleName"
+            case bundleID = "CFBundleIdentifier"
+        }
+    }
+
+    // MARK: - Helpers -
+
     func selectR1Script() -> R1Script? {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = false
@@ -25,12 +39,12 @@ class OpenPanelBridge {
             } catch {
                 return nil
             }
-            return R1Script(name: String(name), path: dest)
+            return R1Script(name: String(name), fileURL: dest)
         }
         return nil
     }
-    
-    func selectApp() -> String? {
+
+    func selectApp() -> (name: String, bundleID: String)? {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
@@ -38,8 +52,9 @@ class OpenPanelBridge {
         panel.directoryURL = URL(string: "/Applications")
         if panel.runModal() == .OK,
             let url = panel.url,
-            let name = url.lastPathComponent.split(separator: ".").first {
-            return String(name)
+            let data = try? Data(contentsOf: url.appendingPathComponent("/Contents/Info.plist")),
+            let plist = try? PropertyListDecoder().decode(AppInfoPlist.self, from: data) {
+            return (name: plist.name, bundleID: plist.bundleID)
         }
         return nil
     }

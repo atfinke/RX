@@ -10,9 +10,9 @@ import SwiftUI
 import R1Kit
 
 struct AppView: View {
-    
+
     @EnvironmentObject var app: R1App
-    
+
     var body: some View {
         R1Notifier.local.selected(app: app.name)
         return VStack {
@@ -44,17 +44,17 @@ struct AppView: View {
             }
             .padding(.top, 5)
             .padding(.bottom, 13)
-            
+
             Divider()
-            
+
             LeftText(
                 text: "Actions",
                 font: Font.system(size: 15, weight: .medium, design: .rounded)
             )
                 .padding(.top, 5)
-            
+
             HStack {
-                ForEach(app.buttons.indices, id: \.self){ index in
+                ForEach(app.buttons.indices, id: \.self) { index in
                     HStack {
                         ScriptSelection(
                             button: Binding(
@@ -72,6 +72,6 @@ struct AppView: View {
         }
         .padding([.leading, .trailing], 30)
         .padding(.top, 20)
-        
+
     }
 }

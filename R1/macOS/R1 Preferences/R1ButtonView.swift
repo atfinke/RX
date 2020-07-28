@@ -10,15 +10,15 @@ import SwiftUI
 import R1Kit
 
 struct R1ButtonView: View {
-    
+
     // MARK: - Properties -
-    
+
     @Binding var button: R1AppButton
     let state: R1BodyViewType
-    
+
     private let radius: CGFloat = 6
     private let colorPanel = ColorPanelBridge()
-    
+
     var color: R1Color {
         get {
             switch self.state {
@@ -37,30 +37,31 @@ struct R1ButtonView: View {
             }
         }
     }
-    
+
     // MARK: - Body -
-    
+
     var body: some View {
-        let color: Color
+        let color: R1Color
         switch self.state {
         case .resting:
-            color = button.colors.resting.swiftColor
+            color = button.colors.resting
         case .pressed:
-            color = button.colors.pressed.swiftColor
+            color = button.colors.pressed
         }
-        
+        let swiftColor = color.swiftColor
+
         return Button(action: {
-            self.colorPanel.show { color in
-                self.update(color: color)
+            self.colorPanel.show(current: color) { newColor in
+                self.update(color: newColor)
             }
         }, label: {
             ZStack {
                 Circle()
                     .fill(Color(.windowBackgroundColor))
                     .frame(width: radius * 2, height: radius * 2)
-                
+
                 Circle()
-                    .stroke(color, lineWidth: 3.5)
+                    .stroke(swiftColor, lineWidth: 3.5)
                     .frame(width: radius * 2, height: radius * 2)
             }
             .onDrag { () -> NSItemProvider in
@@ -79,9 +80,9 @@ struct R1ButtonView: View {
                 return true
             }
         }).buttonStyle(PlainButtonStyle())
-            
+
     }
-    
+
     private func update(color: R1Color) {
         switch state {
         case .resting:
@@ -91,4 +92,3 @@ struct R1ButtonView: View {
         }
     }
 }
-

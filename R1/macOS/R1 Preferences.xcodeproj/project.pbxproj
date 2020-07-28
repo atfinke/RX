@@ -14,7 +14,6 @@
 		14FC6284247BA92000E9B7BA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6283247BA92000E9B7BA /* AppDelegate.swift */; };
 		14FC6286247BA92000E9B7BA /* AppView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6285247BA92000E9B7BA /* AppView.swift */; };
 		14FC6288247BA92100E9B7BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14FC6287247BA92100E9B7BA /* Assets.xcassets */; };
-		14FC628B247BA92100E9B7BA /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14FC628A247BA92100E9B7BA /* Preview Assets.xcassets */; };
 		14FC628E247BA92100E9B7BA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 14FC628C247BA92100E9B7BA /* Main.storyboard */; };
 		14FC62A3247BC09F00E9B7BA /* ColorPanelBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC62A2247BC09F00E9B7BA /* ColorPanelBridge.swift */; };
 		14FC62A5247BC0D500E9B7BA /* R1ButtonView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC62A4247BC0D500E9B7BA /* R1ButtonView.swift */; };
@@ -50,7 +49,6 @@
 		14FC6283247BA92000E9B7BA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		14FC6285247BA92000E9B7BA /* AppView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppView.swift; sourceTree = "<group>"; };
 		14FC6287247BA92100E9B7BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		14FC628A247BA92100E9B7BA /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		14FC628D247BA92100E9B7BA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		14FC628F247BA92100E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6290247BA92100E9B7BA /* R1_Preferences.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = R1_Preferences.entitlements; sourceTree = "<group>"; };
@@ -112,17 +110,8 @@
 				14FC628C247BA92100E9B7BA /* Main.storyboard */,
 				14FC628F247BA92100E9B7BA /* Info.plist */,
 				14FC6290247BA92100E9B7BA /* R1_Preferences.entitlements */,
-				14FC6289247BA92100E9B7BA /* Preview Content */,
 			);
 			path = "R1 Preferences";
-			sourceTree = "<group>";
-		};
-		14FC6289247BA92100E9B7BA /* Preview Content */ = {
-			isa = PBXGroup;
-			children = (
-				14FC628A247BA92100E9B7BA /* Preview Assets.xcassets */,
-			);
-			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 		14FC62FF247C91CB00E9B7BA /* Workarounds */ = {
@@ -170,7 +159,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1150;
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1200;
 				ORGANIZATIONNAME = "Andrew Finke";
 				TargetAttributes = {
 					14FC627F247BA92000E9B7BA = {
@@ -202,7 +191,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				14FC628E247BA92100E9B7BA /* Main.storyboard in Resources */,
-				14FC628B247BA92100E9B7BA /* Preview Assets.xcassets in Resources */,
 				14FC6288247BA92100E9B7BA /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -270,6 +258,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -330,6 +319,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -362,12 +352,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "R1 Preferences/R1_Preferences.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"R1 Preferences/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 72S993BNAV;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				INFOPLIST_FILE = "R1 Preferences/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -385,12 +376,13 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = "R1 Preferences/R1_Preferences.entitlements";
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				DEVELOPMENT_ASSET_PATHS = "\"R1 Preferences/Preview Content\"";
+				DEVELOPMENT_ASSET_PATHS = "";
 				DEVELOPMENT_TEAM = 72S993BNAV;
 				ENABLE_HARDENED_RUNTIME = YES;
-				ENABLE_PREVIEWS = YES;
+				ENABLE_PREVIEWS = NO;
 				INFOPLIST_FILE = "R1 Preferences/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

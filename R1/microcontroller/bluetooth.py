@@ -11,8 +11,12 @@ class Bluetooth:
         self._uart_service = UARTService()
         self._advertisement = ProvideServicesAdvertisement(self._uart_service)
 
+        self._connection = None
+
     def connect(self):
+        self.disconnect()
         self._radio.start_advertising(self._advertisement)
+
         while not self.is_connected():
             pass
 
@@ -21,7 +25,8 @@ class Bluetooth:
         self._radio.stop_advertising()
 
     def disconnect(self):
-        self._connection.disconnect()
+        if self._connection is not None:
+            self._connection.disconnect()
 
     def is_connected(self):
         return self._radio.connected

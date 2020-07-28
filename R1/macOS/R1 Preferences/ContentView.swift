@@ -11,7 +11,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State var preferences = R1Preferences(rxButtons: RXHardware.numberOfButtons)
-    
+
     var body: some View {
         return NavigationView {
             MasterListView()
@@ -21,11 +21,5 @@ struct ContentView: View {
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .frame(width: 620, height: 260)
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
     }
 }

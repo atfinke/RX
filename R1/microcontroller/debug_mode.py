@@ -39,6 +39,7 @@ class DebugMode:
 
             any_on = False
             _, states = buttons.states()
+            print(states)
             for index, state in enumerate(states):
                 if state:
                     leds[led_order[index]] = (0,0,0)

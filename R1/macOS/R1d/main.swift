@@ -15,59 +15,82 @@ private let RXHardwareButtons = 4
 class Main {
     
     // MARK: - Properties -
-    
+
     private let system = System()
     private let manager = R1ConnectionManager()
-    
+
     private var preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
-    private var activeApp: R1App?
-    
+    private var activeR1App: R1App?
+
     // MARK: - Initalization -
-    
+
     init() {
         system.onStateChange = onSystemStateChange(_:)
         manager.onUpdate = onR1Update(_:)
-    }
-    
-    // MARK: - System -
-    
-    func onSystemStateChange(_ state: System.State) {
-        switch state {
-        case .on(let appName):
-            if let lastAppName = self.activeApp?.name, lastAppName == "R1 Preferences" {
+        
+        R1Preferences.registerForUpdates {
+            DispatchQueue.main.async {
                 self.preferences = R1Preferences(writingEnabled: false, rxButtons: RXHardwareButtons)
+                
+                // load in new app object from preferences
+                if let bundleID = self.activeR1App?.bundleID {
+                    self.activeR1App = nil
+                    self.updateActiveApp(to: bundleID)
+                }
             }
-            let newApp: R1App
-            let apps = preferences.customApps + preferences.defaultApps
-            if let activeApp = apps.first(where: { $0.name == appName }) {
-                newApp = activeApp
-            } else if let def = apps.first(where: { $0.name == "Default" }) {
-                newApp = def
-            } else {
-                fatalError()
-            }
-            activeApp = newApp
-            manager.send(message: .appData(newApp))
-        case .sleeping:
-            manager.send(message: .ledsOff)
-        case .off:
-            manager.send(message: .disconnect)
         }
     }
     
-    // MARK: - Connection -
-    
-    func onR1Update(_ update: R1ConnectionManager.Update) {
-        switch update {
-        case .connected:
-            Helpers.showNotification(title: "R1 Connected", text: "-")
-            if let app = self.activeApp {
-                self.manager.send(message: .appData(app))
+
+    // MARK: - System -
+
+    func onSystemStateChange(_ state: System.State) {
+        DispatchQueue.main.async {
+            switch state {
+            case .on(let bundleID):
+                self.updateActiveApp(to: bundleID)
+                self.manager.isScanningEnabled = true
+            case .sleeping:
+                self.activeR1App = nil
+                self.manager.send(message: .ledsOff)
+                self.manager.isScanningEnabled = false
             }
-        case .error(let error):
-            Helpers.showNotification(title: "R1 Error", text: error)
-        case .buttonPressed(let number):
-            Helpers.pressed(button: number, for: self.activeApp)
+        }
+    }
+    
+    func updateActiveApp(to bundleID: String) {
+        let newApp: R1App
+        let apps = preferences.customApps + preferences.defaultApps
+        if let activeApp = apps.first(where: { $0.bundleID == bundleID }) {
+            newApp = activeApp
+        } else if let def = apps.first(where: { $0.name == "Default" }) {
+            newApp = def
+        } else {
+            fatalError()
+        }
+
+        let lastBundleID = activeR1App?.bundleID
+        activeR1App = newApp
+        if lastBundleID != activeR1App?.bundleID {
+            manager.send(message: .appData(newApp))
+        }
+    }
+
+    // MARK: - Connection -
+
+    func onR1Update(_ update: R1ConnectionManager.Update) {
+        DispatchQueue.main.async {
+            switch update {
+            case .connected:
+                Helpers.showNotification(title: "R1 Connected", text: "-")
+                if let app = self.activeR1App {
+                    self.manager.send(message: .appData(app))
+                }
+            case .error(let error):
+                Helpers.showNotification(title: "R1 Error", text: error)
+            case .buttonPressed(let number):
+                Helpers.pressed(button: number, for: self.activeR1App)
+            }
         }
     }
 }

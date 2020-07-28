@@ -9,10 +9,10 @@
 import SwiftUI
 
 struct LeftText: View {
-    
+
     let text: String
     let font: Font
-    
+
     var body: some View {
         HStack {
             Text(text).font(font)

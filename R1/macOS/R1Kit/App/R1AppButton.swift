@@ -9,18 +9,23 @@
 import Foundation
 
 public struct R1AppButton: Codable, Equatable, Hashable, Identifiable {
-   
+
     // MARK: - Properties -
-    
+
     public var id: Int
     public var colors: R1AppButtonStateColors
-    public var action: R1Script?
-    
+    public var action: R1Script? {
+        didSet {
+            guard let url = oldValue?.fileURL else { return }
+            try? FileManager.default.removeItem(at: url)
+        }
+    }
+
     // MARK: - Initalization -
-    
-    public init(number: Int) {
+
+    public init(number: Int, restingColor: R1Color) {
         id = number
-        colors = R1AppButtonStateColors(resting: R1Color(.black), pressed: R1Color(.white))
+        colors = R1AppButtonStateColors(resting: restingColor, pressed: R1Color(.white))
         action = nil
     }
 

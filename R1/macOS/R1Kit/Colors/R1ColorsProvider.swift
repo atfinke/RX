@@ -8,17 +8,23 @@
 
 import Foundation
 
+/// Used for drag and drop in preferences app
 public final class R1ColorsProvider: NSObject, Codable, NSItemProviderWriting, NSItemProviderReading {
-    
+
+    // MARK: - Properties -
     static public let identifier = kUTTypeDirectory as String
-    
+    public static var writableTypeIdentifiersForItemProvider: [String] = [R1ColorsProvider.identifier]
+    public static var readableTypeIdentifiersForItemProvider: [String] = [R1ColorsProvider.identifier]
+
     public let colors: [R1Color]
+    
+    // MARK: - Initalization -
+    
     public init(_ colors: [R1Color]) {
         self.colors = colors
     }
     
-    public static var writableTypeIdentifiersForItemProvider: [String] = [R1ColorsProvider.identifier]
-    public static var readableTypeIdentifiersForItemProvider: [String] = [R1ColorsProvider.identifier]
+    // MARK: - NSItemProviderWriting -
     
     public func loadData(withTypeIdentifier typeIdentifier: String, forItemProviderCompletionHandler completionHandler: @escaping (Data?, Error?) -> Void) -> Progress? {
         do {
@@ -31,6 +37,8 @@ public final class R1ColorsProvider: NSObject, Codable, NSItemProviderWriting, N
         progress.completedUnitCount = 1
         return progress
     }
+
+    // MARK: - NSItemProviderReading -
     
     public static func object(withItemProviderData data: Data, typeIdentifier: String) throws -> R1ColorsProvider {
         do {
@@ -39,6 +47,5 @@ public final class R1ColorsProvider: NSObject, Codable, NSItemProviderWriting, N
             fatalError(error.localizedDescription)
         }
     }
-    
-}
 
+}

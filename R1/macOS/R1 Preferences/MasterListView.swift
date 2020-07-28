@@ -10,10 +10,10 @@ import SwiftUI
 import R1Kit
 
 struct MasterListView: View {
-    
+
     @EnvironmentObject var preferences: R1Preferences
     private let openPanel = OpenPanelBridge()
-    
+
     var body: some View {
         VStack {
             List {
@@ -41,8 +41,8 @@ struct MasterListView: View {
                 }.buttonStyle(PlainButtonStyle())
                 Spacer()
                 Button(action: {
-                    if let app = self.openPanel.selectApp() {
-                        let app = R1App(name: app, buttonCount: RXHardware.numberOfButtons)
+                    if let (name, bundleID) = self.openPanel.selectApp() {
+                        let app = R1App(name: name, bundleID: bundleID, buttonCount: RXHardware.numberOfButtons)
                         self.preferences.customApps.append(app)
                         self.preferences.customApps.sort(by: { $0.name < $1.name })
                     }

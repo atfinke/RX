@@ -10,10 +10,10 @@ import SwiftUI
 import R1Kit
 
 struct R1BodyView: View {
-    
+
     @Binding var buttons: [R1AppButton]
     let state: R1BodyViewType
-    
+
     private var colors: [R1Color] {
         switch self.state {
         case .resting:
@@ -22,16 +22,16 @@ struct R1BodyView: View {
             return buttons.map({ $0.colors.pressed })
         }
     }
-    
+
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 10)
                 .fill(Color(.windowBackgroundColor))
             RoundedRectangle(cornerRadius: 10)
                 .stroke(Color.primary, lineWidth: 3)
-            
+
             HStack {
-                ForEach(buttons.indices, id: \.self){ index in
+                ForEach(buttons.indices, id: \.self) { index in
                     HStack {
                         R1ButtonView(
                             button: Binding(
@@ -67,7 +67,7 @@ struct R1BodyView: View {
             return true
         }
     }
-    
+
     private func update(color: R1Color, index: Int) {
         switch state {
         case .resting:
@@ -77,4 +77,3 @@ struct R1BodyView: View {
         }
     }
 }
-
