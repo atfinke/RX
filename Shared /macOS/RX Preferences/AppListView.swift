@@ -1,5 +1,5 @@
 //
-//  MasterListView.swift
+//  AppListView.swift
 //  RX Preferences
 //
 //  Created by Andrew Finke on 6/29/20.
@@ -9,25 +9,42 @@
 import SwiftUI
 import RXKit
 
-struct MasterListView: View {
+struct AppListView: View {
 
+    // MARK: - Properties -
+    
     @EnvironmentObject var preferences: RXPreferences
     private let openPanel = OpenPanelBridge()
 
+    // MARK: - Body -
+    
     var body: some View {
-        VStack {
+        let hardwareEdition = preferences.hardware.edition
+        return VStack {
             List {
                 Section(header: Text("Apps")) {
                     ForEach(preferences.customApps) { app in
-                        NavigationLink(destination: AppView().environmentObject(app)) {
-                            Text(app.name)
+                        if hardwareEdition == .R1 {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app)) {
+                                Text(app.name)
+                            }
+                        } else if hardwareEdition == .RD {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app)) {
+                                Text(app.name)
+                            }
                         }
                     }
                 }
                 Section(header: Text("Other")) {
                     ForEach(preferences.defaultApps) { app in
-                        NavigationLink(destination: AppView().environmentObject(app)) {
-                            Text(app.name)
+                        if hardwareEdition == .R1 {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app)) {
+                                Text(app.name)
+                            }
+                        } else if hardwareEdition == .RD {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app)) {
+                                Text(app.name)
+                            }
                         }
                     }
                 }
@@ -42,7 +59,7 @@ struct MasterListView: View {
                 Spacer()
                 Button(action: {
                     if let (name, bundleID) = self.openPanel.selectApp() {
-                        let app = RXApp(name: name, bundleID: bundleID, buttonCount: RXHardware.numberOfButtons)
+                        let app = RXApp(name: name, bundleID: bundleID, buttonCount: self.preferences.hardware.edition.buttons)
                         self.preferences.customApps.append(app)
                         self.preferences.customApps.sort(by: { $0.name < $1.name })
                     }

@@ -9,17 +9,22 @@
 import RXKit
 import SwiftUI
 
-struct ContentView: View {
-    @State var preferences = RXPreferences(rxButtons: RXHardware.numberOfButtons)
-
+struct PreferencesContentView: View {
+    
+    // MARK: - Properties -
+    
+    @State var preferences: RXPreferences
+    
+    // MARK: - Body -
+    
     var body: some View {
         return NavigationView {
-            MasterListView()
+            AppListView()
                 .environmentObject(preferences)
                 .frame(width: 160)
             Text("Select an App")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: 620, height: 260)
+        .frame(width: preferences.hardware.edition == .R1 ? 620 : 360, height: 260)
     }
 }

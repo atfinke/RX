@@ -9,17 +9,78 @@
 import Cocoa
 import Combine
 
+public struct RXSerials {
+    
+    public static let store: [RXHardware.Edition: [String]] = [
+        .R1: [
+            "01",
+            "02",
+            "03"
+        ],
+        
+        .RD: [
+            "20"
+        ]
+    ]
+    
+    
+}
+
+public struct RXHardware: Codable {
+    public init(serialNumber: String, edition: RXHardware.Edition) {
+        self.serialNumber = serialNumber
+        self.edition = edition
+    }
+    
+    
+    public enum Edition: String, Codable, Identifiable {
+        case R1
+        case RD
+
+        public var id: String { self.rawValue }
+        public var buttons: Int {
+            switch self {
+            case .R1: return 4
+            case .RD: return 1
+            }
+        }
+    }
+    
+    public let serialNumber: String
+    public let edition: Edition
+    
+    
+    static public func loadFromDisk() throws -> RXHardware {
+         guard let hardwareData = try? Data(contentsOf: RXURL.hardwareData()),
+             let hardware = try? JSONDecoder().decode(RXHardware.self, from: hardwareData) else {
+                 throw RXPreferencesError.initalSetupNeeded
+         }
+         return hardware
+     }
+    
+    
+    public func save() {
+        guard let data = try? JSONEncoder().encode(self) else { return }
+        try? data.write(to: RXURL.hardwareData())
+    }
+}
+
+enum RXPreferencesError: Error {
+    case initalSetupNeeded
+}
+
 /// Main object for storing preferences
 public final class RXPreferences: ObservableObject, Codable {
 
     // MARK: - Types -
 
     private enum CodingKeys: CodingKey {
-        case customApps, defaultApps
+        case hardware, customApps, defaultApps
     }
 
     // MARK: - Properties -
 
+    public let hardware: RXHardware
     @Published public var customApps: [RXApp]
     @Published public var defaultApps: [RXApp]
 
@@ -34,41 +95,60 @@ public final class RXPreferences: ObservableObject, Codable {
     }()
     
     // MARK: - Initalization -
-
-    public init(writingEnabled: Bool = true, rxButtons: Int) {
+    
+    init(hardware: RXHardware) {
+        self.hardware = hardware
+        customApps = []
+        defaultApps = [RXApp.defaultApp(rxButtons: hardware.edition.buttons)]
+    }
+    
+    static public func loadFromDisk(writingEnabled: Bool) throws -> RXPreferences {
+        let hardware = try RXHardware.loadFromDisk()
+   
+        let preferences: RXPreferences
         if let data = try? Data(contentsOf: RXURL.appData()), let object = try? JSONDecoder().decode(RXPreferences.self, from: data) {
-            customApps = object.customApps
-            defaultApps = object.defaultApps
+            preferences = object
         } else {
-            customApps = []
-            defaultApps = [RXApp.defaultApp(rxButtons: rxButtons)]
+            preferences = RXPreferences(hardware: hardware)
         }
-
-        guard writingEnabled else { return }
-        onUpdateCancellable = RXNotifier.local.onUpdate
-            .debounce(for: .seconds(0.5), scheduler: RunLoop.main)
-            .sink(receiveValue: { _ in
-            print("Notifier.shared.onUpdate")
-                self.save()
-        })
-
-        RXNotifier.local.onRemove = { app in
-            self.customApps = self.customApps.filter { $0.name != app }
+        
+        if writingEnabled {
+            preferences.enableWritingToDisk()
         }
+        return preferences
     }
 
     // MARK: - Codable -
     
     public required init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        hardware = try container.decode(RXHardware.self, forKey: .hardware)
         customApps = try container.decode([RXApp].self, forKey: .customApps)
         defaultApps = try container.decode([RXApp].self, forKey: .defaultApps)
     }
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(hardware, forKey: .hardware)
         try container.encode(customApps, forKey: .customApps)
         try container.encode(defaultApps, forKey: .defaultApps)
+    }
+    
+    // MARK: - Saving Changes -
+    
+    func enableWritingToDisk() {
+        onUpdateCancellable = RXNotifier.local.onUpdate
+            .debounce(for: .seconds(0.25), scheduler: RunLoop.main)
+            .sink(receiveValue: { _ in
+                guard let data = try? JSONEncoder().encode(self) else { fatalError() }
+                try? data.write(to: RXURL.appData())
+                let version = RXPreferences.defaults.integer(forKey: RXPreferences.versionKey)
+                RXPreferences.defaults.set(version + 1, forKey: RXPreferences.versionKey)
+        })
+
+        RXNotifier.local.onRemove = { app in
+            self.customApps = self.customApps.filter { $0.name != app }
+        }
     }
 
     // MARK: - Notifications -
@@ -101,16 +181,6 @@ public final class RXPreferences: ObservableObject, Codable {
                              options: .new,
                              context: nil)
         RXPreferences.observer = observer
-    }
-    
-    
-    // MARK: - Other -
-    
-    private func save() {
-        guard let data = try? JSONEncoder().encode(self) else { fatalError() }
-        try? data.write(to: RXURL.appData())
-        let version = RXPreferences.defaults.integer(forKey: RXPreferences.versionKey)
-        RXPreferences.defaults.set(version + 1, forKey: RXPreferences.versionKey)
     }
     
 }

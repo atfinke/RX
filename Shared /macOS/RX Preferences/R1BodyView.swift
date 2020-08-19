@@ -1,5 +1,5 @@
 //
-//  RXBodyView.swift
+//  R1BodyView.swift
 //  RX Preferences
 //
 //  Created by Andrew Finke on 5/25/20.
@@ -9,7 +9,9 @@
 import SwiftUI
 import RXKit
 
-struct RXBodyView: View {
+struct R1BodyView: View {
+
+    // MARK: - Properties -
 
     @Binding var buttons: [RXAppButton]
     let state: RXBodyViewStateType
@@ -17,11 +19,13 @@ struct RXBodyView: View {
     private var colors: [RXColor] {
         switch self.state {
         case .resting:
-            return buttons.map({ $0.colors.resting })
+            return buttons.map { $0.colors.resting }
         case .pressed:
-            return buttons.map({ $0.colors.pressed })
+            return buttons.map { $0.colors.pressed }
         }
     }
+
+    // MARK: - Body -
 
     var body: some View {
         ZStack {
@@ -33,13 +37,13 @@ struct RXBodyView: View {
             HStack {
                 ForEach(buttons.indices, id: \.self) { index in
                     HStack {
-                        RXButtonView(
+                        R1ButtonView(
                             button: Binding(
                                 get: { self.buttons[index] },
                                 set: { self.buttons[index] = $0 }),
                             state: self.state
                         )
-                        if index != RXHardware.numberOfButtons - 1 {
+                        if index != self.buttons.count - 1 {
                             Spacer()
                         }
                     }
@@ -67,6 +71,8 @@ struct RXBodyView: View {
             return true
         }
     }
+
+     // MARK: - Helpers -
 
     private func update(color: RXColor, index: Int) {
         switch state {

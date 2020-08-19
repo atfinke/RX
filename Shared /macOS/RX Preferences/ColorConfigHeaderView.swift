@@ -9,7 +9,13 @@
 import SwiftUI
 
 struct ColorCollectionHeaderView: View {
+    
+     // MARK: - Properties -
+    
     let text: String
+    
+     // MARK: - Body -
+    
     var body: some View {
         LeftText(
             text: text,

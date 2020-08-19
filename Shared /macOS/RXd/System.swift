@@ -36,7 +36,7 @@ class System {
             queue: nil,
             using: { notification in
                 let app = notification.userInfo?[NSWorkspace.applicationUserInfoKey] as? NSRunningApplication
-                self.update(app: app)
+                self.update(to: app)
         })
 
         DistributedNotificationCenter.default().addObserver(
@@ -62,10 +62,10 @@ class System {
     }
     
     private func updateToFrontmostApp() {
-        update(app: NSWorkspace.shared.frontmostApplication)
+        update(to: NSWorkspace.shared.frontmostApplication)
     }
     
-    private func update(app: NSRunningApplication?) {
+    private func update(to app: NSRunningApplication?) {
         guard let bundleID = app?.bundleIdentifier, !self.isScreenLocked else { return }
         os_log("frontmost app: %{public}s", log: self.log, type: .info, bundleID)
 

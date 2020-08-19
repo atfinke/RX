@@ -33,6 +33,10 @@ public struct RXURL {
     public static func appData() -> URL {
         return support.appendingPathComponent("appData")
     }
+    
+    public static func hardwareData() -> URL {
+        return support.appendingPathComponent("hardwareData")
+    }
 
     private static func createDirectory(at url: URL) {
         try? FileManager.default.createDirectory(

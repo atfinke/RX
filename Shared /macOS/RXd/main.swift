@@ -7,10 +7,10 @@
 //
 
 import Cocoa
+import UserNotifications
+
 import RXKit
 import os.log
-
-private let RXHardwareButtons = 4
 
 class Main {
     
@@ -19,7 +19,13 @@ class Main {
     private let system = System()
     private let manager = RXConnectionManager()
 
-    private var preferences = RXPreferences(writingEnabled: false, rxButtons: RXHardwareButtons)
+    private var preferences: RXPreferences = {
+        do {
+            return try RXPreferences.loadFromDisk(writingEnabled: false)
+        } catch {
+            fatalError("RX Preferences app hasn't completed inital setup")
+        }
+    }()
     private var activeRXApp: RXApp?
 
     // MARK: - Initalization -
@@ -30,15 +36,22 @@ class Main {
         
         RXPreferences.registerForUpdates {
             DispatchQueue.main.async {
-                self.preferences = RXPreferences(writingEnabled: false, rxButtons: RXHardwareButtons)
-                
-                // load in new app object from preferences
-                if let bundleID = self.activeRXApp?.bundleID {
-                    self.activeRXApp = nil
-                    self.updateActiveApp(to: bundleID)
+                do {
+                    let preferences = try RXPreferences.loadFromDisk(writingEnabled: false)
+                    self.preferences = preferences
+                    
+                    // load in new app object from preferences
+                    if let bundleID = self.activeRXApp?.bundleID {
+                        self.activeRXApp = nil
+                        self.updateActiveApp(to: bundleID)
+                    }
+                } catch {
+                    fatalError("RX Preferences couldn't be read")
                 }
             }
         }
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { _, _ in }
     }
     
 

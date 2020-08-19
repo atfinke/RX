@@ -1,5 +1,5 @@
 //
-//  AppView.swift
+//  R1AppConfigurationView.swift
 //  RX Preferences
 //
 //  Created by Andrew Finke on 5/25/20.
@@ -9,10 +9,14 @@
 import SwiftUI
 import RXKit
 
-struct AppView: View {
-
+struct R1AppConfigurationView: View {
+    
+    // MARK: - Properties -
+    
     @EnvironmentObject var app: RXApp
-
+    
+    // MARK: - Body -
+    
     var body: some View {
         RXNotifier.local.selected(app: app.name)
         return VStack {
@@ -24,7 +28,7 @@ struct AppView: View {
             HStack {
                 VStack {
                     ColorCollectionHeaderView(text: "Resting")
-                    RXBodyView(
+                    R1BodyView(
                         buttons: Binding(
                             get: { self.app.buttons },
                             set: { self.app.buttons = $0 }),
@@ -34,7 +38,7 @@ struct AppView: View {
                 Spacer(minLength: 35)
                 VStack {
                     ColorCollectionHeaderView(text: "Pressed")
-                    RXBodyView(
+                    R1BodyView(
                         buttons: Binding(
                             get: { self.app.buttons },
                             set: { self.app.buttons = $0 }),
@@ -44,15 +48,15 @@ struct AppView: View {
             }
             .padding(.top, 5)
             .padding(.bottom, 13)
-
+            
             Divider()
-
+            
             LeftText(
                 text: "Actions",
                 font: Font.system(size: 15, weight: .medium, design: .rounded)
             )
                 .padding(.top, 5)
-
+            
             HStack {
                 ForEach(app.buttons.indices, id: \.self) { index in
                     HStack {
@@ -62,7 +66,7 @@ struct AppView: View {
                                 set: { self.app.buttons[index] = $0 }),
                             title: self.app.buttons[index].id.description
                         )
-                        if index != RXHardware.numberOfButtons - 1 {
+                        if index != self.app.buttons.count - 1 {
                             Spacer()
                         }
                     }
@@ -72,6 +76,6 @@ struct AppView: View {
         }
         .padding([.leading, .trailing], 30)
         .padding(.top, 20)
-
+        
     }
 }

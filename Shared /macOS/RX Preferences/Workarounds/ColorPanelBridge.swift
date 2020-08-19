@@ -31,6 +31,5 @@ class ColorPanelBridge {
 
     @objc func selectedColor(sender: NSColorPanel) {
         update?(RXColor(sender.color))
-        NSApp.mainWindow?.makeKey()
     }
 }
