@@ -7,66 +7,79 @@
 //
 
 import Cocoa
-import UserNotifications
-
 import RXKit
 import os.log
 
 class Main {
     
     // MARK: - Properties -
-
-    private let system = System()
-    private let manager = RXConnectionManager()
-
-    private var preferences: RXPreferences = {
+    
+    private lazy var preferences: RXPreferences = {
         do {
             return try RXPreferences.loadFromDisk(writingEnabled: false)
         } catch {
-            fatalError("RX Preferences app hasn't completed inital setup")
+            notificationsManager.show(title: "Inital setup not complete", text: "Open the RX Preferences app to finish setup")
+            os_log("RX Preferences app hasn't completed inital setup", log: self.log, type: .error)
+            fatalError()
         }
     }()
-    private var activeRXApp: RXApp?
-
+    
+    private lazy var activeRXApp: RXApp = {
+        guard let app = preferences.defaultApps.first(where: { $0.name == "Default" }) else {
+            os_log("No default app", log: self.log, type: .error)
+            fatalError()
+        }
+        return app
+    }()
+    
+    private let macintosh = Macintosh()
+    private let notificationsManager = NotificationsManager()
+    private lazy var connectionManager: RXConnectionManager = {
+        return RXConnectionManager(hardware: preferences.hardware)
+    }()
+    
+    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd Main")
+    
     // MARK: - Initalization -
-
+    
     init() {
-        system.onStateChange = onSystemStateChange(_:)
-        manager.onUpdate = onRXUpdate(_:)
+        macintosh.onStateChange = onSystemStateChange(_:)
+        connectionManager.onUpdate = onRXUpdate(_:)
         
         RXPreferences.registerForUpdates {
+            os_log("Observed update", log: self.log, type: .info)
             DispatchQueue.main.async {
                 do {
                     let preferences = try RXPreferences.loadFromDisk(writingEnabled: false)
                     self.preferences = preferences
                     
-                    // load in new app object from preferences
-                    if let bundleID = self.activeRXApp?.bundleID {
-                        self.activeRXApp = nil
-                        self.updateActiveApp(to: bundleID)
-                    }
+                    os_log("loaded new prefs", log: self.log, type: .info)
+                    
+                    self.updateActiveApp(to: self.activeRXApp.bundleID)
                 } catch {
-                    fatalError("RX Preferences couldn't be read")
+                    if self.connectionManager.isConnected {
+                        self.connectionManager.send(message: .disconnect)
+                        os_log("RX Preferences app triggered reset", log: self.log, type: .info)
+                        exit(0) // Path triggered by RX Prefs reset
+                    } else {
+                        os_log("RX Preferences couldn't be read", log: self.log, type: .error)
+                    }
                 }
             }
         }
-        
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { _, _ in }
     }
     
-
     // MARK: - System -
 
-    func onSystemStateChange(_ state: System.State) {
+    func onSystemStateChange(_ state: Macintosh.State) {
         DispatchQueue.main.async {
             switch state {
             case .on(let bundleID):
                 self.updateActiveApp(to: bundleID)
-                self.manager.isScanningEnabled = true
+                self.connectionManager.isScanningEnabled = true
             case .sleeping:
-                self.activeRXApp = nil
-                self.manager.send(message: .ledsOff)
-                self.manager.isScanningEnabled = false
+                self.connectionManager.send(message: .ledsOff)
+                self.connectionManager.isScanningEnabled = false
             }
         }
     }
@@ -82,31 +95,41 @@ class Main {
             fatalError()
         }
 
-        let lastBundleID = activeRXApp?.bundleID
-        activeRXApp = newApp
-        if lastBundleID != activeRXApp?.bundleID {
-            manager.send(message: .appData(newApp))
+        let previousColors = activeRXApp.buttons.map { $0.colors }
+        if previousColors != newApp.buttons.map({ $0.colors }) {
+            os_log("Diff colors", log: log, type: .info)
+            connectionManager.send(message: .appData(newApp))
         }
+        
+        activeRXApp = newApp
     }
 
     // MARK: - Connection -
 
-    func onRXUpdate(_ update: RXConnectionManager.Update) {
+    func onRXUpdate(_ update: RXConnectionManager.ListenerUpdate) {
+        func show(title: String, text: String?) {
+            notificationsManager.show(title: title, text: text)
+        }
+        
         DispatchQueue.main.async {
             switch update {
             case .connected(let name):
-                Helpers.showNotification(title: "Connected to \(name)", text: nil)
-                if let app = self.activeRXApp {
-                    self.manager.send(message: .appData(app))
-                }
+                show(title: "Connected to \(name)", text: nil)
+                self.connectionManager.send(message: .appData(self.activeRXApp))
             case .error(let error):
-                Helpers.showNotification(title: "RX Error", text: error)
+                show(title: "\(self.preferences.hardware.edition.rawValue) Error", text: error)
             case .buttonPressed(let number):
-                Helpers.pressed(button: number, for: self.activeRXApp)
+                if number <= self.activeRXApp.buttons.count, let action = self.activeRXApp.buttons[number - 1].action {
+                    action.run()
+                } else {
+                    show(title: "\(self.preferences.hardware.edition.rawValue) Not Configured",
+                         text: "Pressed button \(number) with no action set for \(self.activeRXApp.name)")
+                }
             }
         }
     }
 }
+
 
 let main = Main()
 RunLoop.main.run()

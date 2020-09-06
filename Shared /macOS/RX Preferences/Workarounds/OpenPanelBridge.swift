@@ -25,11 +25,19 @@ class OpenPanelBridge {
 
     // MARK: - Helpers -
 
-    func selectRXScript() -> RXScript? {
+    func selectRXScript(appName: String) -> RXScript? {
         let panel = NSOpenPanel()
         panel.canChooseDirectories = false
         panel.allowsMultipleSelection = false
         panel.allowedFileTypes = ["scpt"]
+        
+        let suffix: String
+        if appName == "Default" {
+            suffix = "."
+        } else {
+            suffix = " and \(appName) is the frontmost app."
+        }
+        panel.message = "Select the AppleScript file (.scpt) to run when the button is pressed" + suffix
         if panel.runModal() == .OK,
             let url = panel.url,
             let name = url.lastPathComponent.split(separator: ".").first {
@@ -50,6 +58,7 @@ class OpenPanelBridge {
         panel.allowsMultipleSelection = false
         panel.allowedFileTypes = ["app"]
         panel.directoryURL = URL(string: "/Applications")
+        panel.message = "Select an application to configure the RD for."
         if panel.runModal() == .OK,
             let url = panel.url,
             let data = try? Data(contentsOf: url.appendingPathComponent("/Contents/Info.plist")),

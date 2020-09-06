@@ -8,11 +8,10 @@
 
 import Foundation
 
-public struct RXAppButton: Codable, Equatable, Hashable, Identifiable {
+public struct RXAppButton: Codable, Equatable {
 
     // MARK: - Properties -
 
-    public var id: Int
     public var colors: RXAppButtonStateColors
     public var action: RXScript? {
         didSet {
@@ -23,8 +22,7 @@ public struct RXAppButton: Codable, Equatable, Hashable, Identifiable {
 
     // MARK: - Initalization -
 
-    public init(number: Int, restingColor: RXColor) {
-        id = number
+    public init(restingColor: RXColor) {
         colors = RXAppButtonStateColors(resting: restingColor, pressed: RXColor(.white))
         action = nil
     }

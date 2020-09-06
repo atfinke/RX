@@ -62,12 +62,11 @@ class DebugMode:
                 time.sleep(1)
 
     def _digital_rgb_debug_mode(self, buttons):
-        frequency = 5000
         duty_cycle = 0
         self._digital_leds = [
-            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[0], frequency=frequency, duty_cycle=duty_cycle),
-            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[1], frequency=frequency, duty_cycle=duty_cycle),
-            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[2], frequency=frequency, duty_cycle=duty_cycle)
+            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[0], duty_cycle=duty_cycle),
+            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[1], duty_cycle=duty_cycle),
+            pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[2], duty_cycle=duty_cycle)
         ]
 
         button_count = 1

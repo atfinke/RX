@@ -10,34 +10,54 @@ import CoreBluetooth
 import os.log
 import RXKit
 
-private let __SERIAL_NUMBER = "10"
-
 class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDelegate {
 
     // MARK: - Types -
 
-    enum Update {
+    enum ListenerUpdate {
         case connected(name: String), error(String), buttonPressed(number: Int)
     }
     
-    enum WriteMessage {
+    enum RXWriteMessage {
         case ledsOff, disconnect, appData(RXApp), readyForName
+        
+        fileprivate func data() -> [Data] {
+            var values: [String]
+            switch self {
+            case .readyForName:
+                values = ["r"]
+            case .ledsOff:
+                values = ["x"]
+            case .disconnect:
+                values = ["q"]
+            case .appData(let app):
+                values = ["s"]
+
+                func hex(r: Double, g: Double, b: Double) -> String {
+                    return String(format: "%02X", Int(r * 255)) +
+                        String(format: "%02X", Int(g * 255)) +
+                        String(format: "%02X", Int(b * 255))
+                }
+
+                // send the colors as hex strings, first the colors for the buttons in resting state, then in pressed
+                [app.buttons.map { $0.colors.resting }, app.buttons.map { $0.colors.pressed }]
+                    .flatMap { $0 }
+                    .map { hex(r: $0.red, g: $0.green, b: $0.blue) }
+                    .forEach { values.append($0) }
+            }
+            return values.compactMap({ $0.data(using: .utf8) })
+        }
     }
     
-    private enum ReadMessage: String {
+    private enum RXReadMessage: String {
         case name = "n:"
         case buttonPressed = "b:"
     }
 
-    private enum RXCommand: String {
-        case disconnect = "q"
-        case turnOffLeds = "x"
-        case ledColors = "s"
-        case readyForName = "r"
-    }
-
     // MARK: - Properties -
 
+    private let hardware: RXHardware
+    
     private var manager: CBCentralManager?
     private var peripheral: CBPeripheral?
 
@@ -45,11 +65,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     private var writeCharacteristic: CBCharacteristic?
 
     private var bufferedMessages = [Data]()
-
-    private static let serviceUUID = CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
-    private static let maxMessageSize = 20
-
-    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "bluetooth")
+    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd Bluetooth")
 
     var isScanningEnabled = true {
         didSet {
@@ -65,44 +81,18 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     
     // MARK: - Callbacks -
 
-    var onUpdate: ((Update) -> Void)?
+    var onUpdate: ((ListenerUpdate) -> Void)?
 
     // MARK: - Initalization -
 
-    override init() {
+    init(hardware: RXHardware) {
         os_log("%{public}s", log: log, type: .info, #function)
+        self.hardware = hardware
         super.init()
         manager = CBCentralManager(delegate: self, queue: nil)
     }
-
-    // MARK: - Helpers -
-
-    func send(message: WriteMessage) {
-        guard let peripheral = peripheral, let writeCharacteristic = writeCharacteristic else { return }
-        bufferedMessages.removeAll()
-
-        switch message {
-        case .readyForName:
-            os_log("%{public}s: readyForName", log: log, type: .info, #function)
-            guard let data = RXCommand.readyForName.rawValue.data(using: .utf8) else { return }
-            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
-        case .ledsOff:
-            os_log("%{public}s: ledsOff", log: log, type: .info, #function)
-            guard let data = RXCommand.turnOffLeds.rawValue.data(using: .utf8) else { return }
-            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
-        case .disconnect:
-            os_log("%{public}s: disconnect", log: log, type: .info, #function)
-            guard let data = RXCommand.disconnect.rawValue.data(using: .utf8) else { return }
-            manager?.delegate = nil
-            peripheral.delegate = nil
-            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
-            self.peripheral = nil
-        case .appData(let app):
-            os_log("%{public}s: %{public}s", log: log, type: .info, #function, app.name)
-            compile(app: app)
-            sendFromBuffer()
-        }
-    }
+    
+    // MARK: - Connection -
 
     func startScan() {
         guard isScanningEnabled else {
@@ -111,7 +101,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         
         os_log("%{public}s: scanForPeripherals", log: log, type: .info, #function)
         manager?.scanForPeripherals(
-            withServices: [RXConnectionManager.serviceUUID],
+            withServices: [hardware.edition.serviceCBUUID],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
     }
@@ -128,6 +118,51 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             self.peripheral = nil
         }
         onUpdate?(.error(error))
+    }
+    
+    // MARK: - Sending Messages -
+
+    func send(message: RXWriteMessage) {
+        guard let peripheral = peripheral else { return }
+        bufferedMessages.removeAll()
+
+        switch message {
+        case .readyForName:
+            os_log("%{public}s: readyForName", log: log, type: .info, #function)
+        case .ledsOff:
+            os_log("%{public}s: ledsOff", log: log, type: .info, #function)
+        case .disconnect:
+            os_log("%{public}s: disconnect", log: log, type: .info, #function)
+        case .appData(let app):
+            os_log("%{public}s: Colors: %{public}s", log: log, type: .info, #function, app.name)
+        }
+        
+        addToBuffer(message.data())
+        
+        if case RXWriteMessage.disconnect = message {
+            manager?.delegate = nil
+            peripheral.delegate = nil
+            manager?.cancelPeripheralConnection(peripheral)
+            
+            self.peripheral = nil
+        }
+    }
+    
+    private func addToBuffer(_ data: [Data]) {
+        for item in data {
+            if let prev = bufferedMessages.last, prev.count + item.count < hardware.edition.maxMessageSize {
+                bufferedMessages[bufferedMessages.count - 1] = prev + item
+            } else {
+                bufferedMessages.append(item)
+            }
+        }
+        sendFromBuffer()
+    }
+
+    private func sendFromBuffer() {
+        guard !bufferedMessages.isEmpty, let peripheral = peripheral, let writeCharacteristic = writeCharacteristic  else { return }
+        let data = bufferedMessages.removeFirst()
+        peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
     }
 
     // MARK: - CBCentralManagerDelegate -
@@ -151,7 +186,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
         os_log("%{public}s: %{public}s", log: log, type: .info, #function, peripheral.name ?? "-")
-        if peripheral.name == "RX:" + __SERIAL_NUMBER {
+        if peripheral.name == "RX:" + hardware.serialNumber {
             os_log("%{public}s: found RX: %{public}s", log: log, type: .info, #function, peripheral.identifier.uuidString)
             discovered(device: peripheral)
         }
@@ -160,7 +195,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         os_log("%{public}s", log: log, type: .info, #function)
         peripheral.delegate = self
-        peripheral.discoverServices([RXConnectionManager.serviceUUID])
+        peripheral.discoverServices([hardware.edition.serviceCBUUID])
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
@@ -232,7 +267,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         guard readCharacteristic == characteristic,
               let value = characteristic.value,
               let str = String(data: value, encoding: .utf8),
-              let messageType = ReadMessage(rawValue: String(str.prefix(2))) else {
+              let messageType = RXReadMessage(rawValue: String(str.prefix(2))) else {
             os_log("%{public}s: parsing error", log: log, type: .error, #function)
             return
         }
@@ -264,39 +299,5 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             sendFromBuffer()
         }
     }
-
-    // MARK: - Buffer -
-
-    private func sendFromBuffer() {
-        guard !bufferedMessages.isEmpty, let peripheral = peripheral, let writeCharacteristic = writeCharacteristic  else { return }
-        let data = bufferedMessages.removeFirst()
-        peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
-    }
-
-    private func compile(app: RXApp) {
-        var dataToEncode = [RXCommand.ledColors.rawValue]
-
-        func hex(r: Double, g: Double, b: Double) -> String {
-            return String(format: "%02X", Int(r * 255)) +
-                String(format: "%02X", Int(g * 255)) +
-                String(format: "%02X", Int(b * 255))
-        }
-
-        [app.buttons.map { $0.colors.resting }, app.buttons.map { $0.colors.pressed }]
-            .flatMap { $0 }
-            .map { hex(r: $0.red, g: $0.green, b: $0.blue) }
-            .forEach { dataToEncode.append($0) }
-
-        var messages = [Data]()
-        for item in dataToEncode.compactMap({ $0.data(using: .utf8) }) {
-            if let prev = messages.last, prev.count + item.count < RXConnectionManager.maxMessageSize {
-                messages[messages.count - 1] = prev + item
-            } else {
-                messages.append(item)
-            }
-        }
-
-        self.bufferedMessages = messages
-    }
-
+    
 }

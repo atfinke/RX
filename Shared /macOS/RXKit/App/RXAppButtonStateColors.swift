@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RXAppButtonStateColors: Codable, Equatable, Hashable {
+public struct RXAppButtonStateColors: Codable, Equatable {
     public var resting: RXColor
     public var pressed: RXColor
 }

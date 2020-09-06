@@ -9,7 +9,7 @@
 import AppKit
 import os.log
 
-class System {
+class Macintosh {
 
     // MARK: - Types -
 
@@ -25,7 +25,7 @@ class System {
             self.updateToFrontmostApp()
         }
     }
-    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "macOS")
+    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd macOS")
 
     // MARK: - Initalization -
 
@@ -60,6 +60,8 @@ class System {
             })
 
     }
+    
+    // MARK: - Updates -
     
     private func updateToFrontmostApp() {
         update(to: NSWorkspace.shared.frontmostApplication)

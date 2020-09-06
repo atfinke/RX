@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1458C91524AABD2C0018477C /* System.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91424AABD2C0018477C /* System.swift */; };
+		1458C91524AABD2C0018477C /* Macintosh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91424AABD2C0018477C /* Macintosh.swift */; };
+		147C45CE24F359AB00EC79CA /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 147C45CD24F359AB00EC79CA /* NotificationsManager.swift */; };
 		14FC633C247C9FE500E9B7BA /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC633B247C9FE500E9B7BA /* main.swift */; };
 		14FC6340247C9FE500E9B7BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14FC633F247C9FE500E9B7BA /* Assets.xcassets */; };
 		14FC634C247CC61D00E9B7BA /* RXConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC634B247CC61D00E9B7BA /* RXConnectionManager.swift */; };
-		14FC6355247CF21200E9B7BA /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6354247CF21200E9B7BA /* Helpers.swift */; };
 		14FE3CFD24E88F4E00B5DE33 /* RXKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 14FE3CF424E88F3300B5DE33 /* RXKit.framework */; };
 		14FE3CFE24E88F5200B5DE33 /* RXKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 14FE3CF424E88F3300B5DE33 /* RXKit.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
@@ -48,14 +48,14 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1458C91424AABD2C0018477C /* System.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = System.swift; sourceTree = "<group>"; };
+		1458C91424AABD2C0018477C /* Macintosh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Macintosh.swift; sourceTree = "<group>"; };
+		147C45CD24F359AB00EC79CA /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
 		14FC6338247C9FE500E9B7BA /* RXd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RXd.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		14FC633B247C9FE500E9B7BA /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		14FC633F247C9FE500E9B7BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14FC6344247C9FE500E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6345247C9FE500E9B7BA /* RXd.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RXd.entitlements; sourceTree = "<group>"; };
 		14FC634B247CC61D00E9B7BA /* RXConnectionManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXConnectionManager.swift; sourceTree = "<group>"; };
-		14FC6354247CF21200E9B7BA /* Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
 		14FE3CEF24E88F3300B5DE33 /* RXKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; path = RXKit.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -92,8 +92,8 @@
 			isa = PBXGroup;
 			children = (
 				14FC633B247C9FE500E9B7BA /* main.swift */,
-				14FC6354247CF21200E9B7BA /* Helpers.swift */,
-				1458C91424AABD2C0018477C /* System.swift */,
+				1458C91424AABD2C0018477C /* Macintosh.swift */,
+				147C45CD24F359AB00EC79CA /* NotificationsManager.swift */,
 				14FC634B247CC61D00E9B7BA /* RXConnectionManager.swift */,
 				14FC633F247C9FE500E9B7BA /* Assets.xcassets */,
 				14FC6344247C9FE500E9B7BA /* Info.plist */,
@@ -205,10 +205,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				1458C91524AABD2C0018477C /* System.swift in Sources */,
+				1458C91524AABD2C0018477C /* Macintosh.swift in Sources */,
 				14FC634C247CC61D00E9B7BA /* RXConnectionManager.swift in Sources */,
 				14FC633C247C9FE500E9B7BA /* main.swift in Sources */,
-				14FC6355247CF21200E9B7BA /* Helpers.swift in Sources */,
+				147C45CE24F359AB00EC79CA /* NotificationsManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

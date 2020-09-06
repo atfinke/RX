@@ -15,7 +15,6 @@ public struct RXURL {
             fatalError("Check app group in RXDeveloperConfig")
         }
         let url = container.appendingPathComponent("RX")
-        print(url)
         createDirectory(at: url)
         return url
     }()
@@ -27,7 +26,7 @@ public struct RXURL {
     }()
 
     public static func newScript() -> URL {
-        return scripts.appendingPathComponent(UUID().uuidString)
+        return scripts.appendingPathComponent(UUID().uuidString + ".scpt")
     }
 
     public static func appData() -> URL {
@@ -35,6 +34,7 @@ public struct RXURL {
     }
     
     public static func hardwareData() -> URL {
+        createDirectory(at: support) // in case of reset
         return support.appendingPathComponent("hardwareData")
     }
 

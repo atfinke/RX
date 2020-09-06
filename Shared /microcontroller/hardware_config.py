@@ -9,7 +9,7 @@ class HardwareConfig:
 
     SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS = None
 
-    TRANSITION_DURATION = 0.2
+    TRANSITION_DURATION = 0.32
     MAX_LED_VALUE = 65535
 
     NAME = "Andrew's R1"

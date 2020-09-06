@@ -1,6 +1,6 @@
 import board
 import busio
-
+import math
 import pulseio
 import adafruit_tlc59711
 
@@ -18,37 +18,47 @@ class Lights:
             self._light_count = len(self._light_order)
             spi = busio.SPI(board.SCK, MOSI=board.MOSI)
             self._tlc_leds = adafruit_tlc59711.TLC59711(spi, auto_show=False)
+
         elif HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS is not None:
             assert(len(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS) == 3)
 
             self._light_order = None
             self._light_count = 1
 
-            frequency = 5000
             duty_cycle = 0
             self._digital_leds = [
-                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[0], frequency=frequency, duty_cycle=duty_cycle),
-                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[1], frequency=frequency, duty_cycle=duty_cycle),
-                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[2], frequency=frequency, duty_cycle=duty_cycle)
+                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[0], duty_cycle=duty_cycle),
+                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[1], duty_cycle=duty_cycle),
+                pulseio.PWMOut(HardwareConfig.SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS[2], duty_cycle=duty_cycle)
             ]
         else:
             raise ValueError('Invalid init')
 
-        self._last_resting_colors = white_tuple_array(self._light_count)
         self._resting_colors = white_tuple_array(self._light_count)
         self._pressed_colors = white_tuple_array(self._light_count)
+
+        self._current_colors = white_tuple_array(self._light_count)
+        self._transition_start_colors = white_tuple_array(self._light_count)
+        self._transition_final_colors = white_tuple_array(self._light_count)
 
     # RESTING COLORS
 
     def start_transition_to_new_resting_colors(self, new_colors):
-        self._last_resting_colors = self._resting_colors
         self._resting_colors = new_colors
+        self._transition_start_colors = self._current_colors
+        self._transition_final_colors = new_colors
 
-    def update_transition_to_new_resting_colors_progress(self, progress):
-        inital = self._last_resting_colors
-        final = self._resting_colors
-        lerp = lerp_tuple_arrays(inital, final, min(progress, 1))
+    def update_transition_to_new_resting_colors_progress(self, percent):
+        timing_function_progress = self._percent_complete_to_ease_in_out_function_progress(percent)
+
+        inital = self._transition_start_colors
+        final = self._transition_final_colors
+        lerp = lerp_tuple_arrays(inital, final, min(timing_function_progress, 1))
+
         self._update_lights_to_colors(lerp)
+
+    def _percent_complete_to_ease_in_out_function_progress(self, percent):
+        return -(math.cos(math.pi * percent) - 1) / 2
 
     # PRESSED COLORS
 
@@ -82,6 +92,8 @@ class Lights:
 
         if self._tlc_leds is not None:
             self._tlc_leds.show()
+
+        self._current_colors = colors
 
     def set_to_colors_tuple(self, colors_tuple):
         colors = []

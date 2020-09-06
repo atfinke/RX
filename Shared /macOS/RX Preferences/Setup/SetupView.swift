@@ -1,5 +1,5 @@
 //
-//  SNContentView.swift
+//  SetupView.swift
 //  RX Preferences
 //
 //  Created by Andrew Finke on 9/1/20.
@@ -11,12 +11,7 @@ import SwiftUI
 import Combine
 import RXKit
 
-
-
-
 struct SetupView: View {
-    
-    // MARK: - Types
     
     // MARK: - Properties -
     
@@ -32,22 +27,20 @@ struct SetupView: View {
     var body: some View {
         let isDisplayingHardware = nearbyManager.shouldDisplayHardware
         return VStack {
-            Text(isDisplayingHardware ? "Found Nearby \(nearbyManager.queuedNearbyHardware[0].edition.rawValue)" : "Searching For Devices")
+            Text(isDisplayingHardware ? "Found Nearby Device" : "Searching For Devices")
                 .font(.headline)
                 .padding(.top, 20)
             
             ZStack {
                 if isDisplayingHardware {
-                    Text("\(nearbyManager.queuedNearbyHardware[0].edition.rawValue) with serial number \(nearbyManager.queuedNearbyHardware[0].serialNumber) is nearby. Is this your device?")
+                    Text("\(nearbyManager.queuedNearbyHardware[0].edition.rawValue) with serial number \(nearbyManager.queuedNearbyHardware[0].serialNumber) is nearby. Is this yours?")
                         .multilineTextAlignment(.center)
                 } else {
                     ActivityIndicator().scaleEffect(0.75)
                 }
-                
             }
             .padding(.horizontal, 16)
             .frame(height: 60)
-            
            
             HStack {
                 Button("    No    ", action: {
@@ -60,11 +53,8 @@ struct SetupView: View {
                 .padding()
                 
             }.opacity(isDisplayingHardware ? 1 : 0)
-       
-            
         }.frame(width: 240, height: 180)
     }
-  
 }
 
 struct SNContentViewPreviews: PreviewProvider {

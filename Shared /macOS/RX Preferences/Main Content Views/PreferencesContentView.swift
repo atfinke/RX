@@ -25,6 +25,6 @@ struct PreferencesContentView: View {
             Text("Select an App")
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .frame(width: preferences.hardware.edition == .R1 ? 620 : 360, height: 260)
+        .frame(width: preferences.hardware.edition == .R1 ? 620 : 460, height: 260)
     }
 }

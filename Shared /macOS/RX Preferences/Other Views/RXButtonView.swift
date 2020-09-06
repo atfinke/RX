@@ -9,23 +9,24 @@
 import SwiftUI
 import RXKit
 
-struct R1ButtonView: View {
-
+struct RXButtonView: View {
+    
     // MARK: - Properties -
-
+    
     @Binding var button: RXAppButton
     let state: RXBodyViewStateType
-
-    private let radius: CGFloat = 6
+    
+    let innerRadius: CGFloat
+    let lineWidth: CGFloat
     private let colorPanel = ColorPanelBridge()
-
+    
     var color: RXColor {
         get {
             switch self.state {
             case .resting:
                 return button.colors.resting
             case .pressed:
-                 return button.colors.pressed
+                return button.colors.pressed
             }
         }
         set {
@@ -37,9 +38,9 @@ struct R1ButtonView: View {
             }
         }
     }
-
+    
     // MARK: - Body -
-
+    
     var body: some View {
         let color: RXColor
         switch self.state {
@@ -49,7 +50,7 @@ struct R1ButtonView: View {
             color = button.colors.pressed
         }
         let swiftColor = color.swiftColor
-
+        
         return Button(action: {
             self.colorPanel.show(current: color) { newColor in
                 self.update(color: newColor)
@@ -58,11 +59,11 @@ struct R1ButtonView: View {
             ZStack {
                 Circle()
                     .fill(Color(.windowBackgroundColor))
-                    .frame(width: radius * 2, height: radius * 2)
-
+                    .frame(width: innerRadius * 2, height: innerRadius * 2)
+                
                 Circle()
-                    .stroke(swiftColor, lineWidth: 3.5)
-                    .frame(width: radius * 2, height: radius * 2)
+                    .stroke(swiftColor, lineWidth: lineWidth)
+                    .frame(width: innerRadius * 2, height: innerRadius * 2)
             }
             .onDrag { () -> NSItemProvider in
                 return NSItemProvider(object: RXColorProvider(self.color))
@@ -80,9 +81,9 @@ struct R1ButtonView: View {
                 return true
             }
         }).buttonStyle(PlainButtonStyle())
-
+        
     }
-
+    
     private func update(color: RXColor) {
         switch state {
         case .resting:

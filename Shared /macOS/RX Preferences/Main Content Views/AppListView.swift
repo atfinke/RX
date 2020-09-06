@@ -25,11 +25,11 @@ struct AppListView: View {
                 Section(header: Text("Apps")) {
                     ForEach(preferences.customApps) { app in
                         if hardwareEdition == .R1 {
-                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app)) {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(preferences)) {
                                 Text(app.name)
                             }
                         } else if hardwareEdition == .RD {
-                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app)) {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(preferences)) {
                                 Text(app.name)
                             }
                         }
@@ -38,11 +38,11 @@ struct AppListView: View {
                 Section(header: Text("Other")) {
                     ForEach(preferences.defaultApps) { app in
                         if hardwareEdition == .R1 {
-                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app)) {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(preferences)) {
                                 Text(app.name)
                             }
                         } else if hardwareEdition == .RD {
-                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app)) {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(preferences)) {
                                 Text(app.name)
                             }
                         }
@@ -54,8 +54,8 @@ struct AppListView: View {
                 Button(action: {
                     RXNotifier.local.pressedRemove()
                 }) {
-                    Text("􀁏").font(Font.system(size: 14, weight: .medium, design: .rounded))
-                }.buttonStyle(PlainButtonStyle())
+                    Text("-").font(Font.system(size: 14, weight: .medium))
+                }
                 Spacer()
                 Button(action: {
                     if let (name, bundleID) = self.openPanel.selectApp() {
@@ -64,8 +64,8 @@ struct AppListView: View {
                         self.preferences.customApps.sort(by: { $0.name < $1.name })
                     }
                 }) {
-                    Text("􀁍").font(Font.system(size: 14, weight: .medium, design: .rounded))
-                }.buttonStyle(PlainButtonStyle())
+                    Text("+").font(Font.system(size: 14, weight: .medium))
+                }
             }
             .padding(2)
             .frame(height: 20)

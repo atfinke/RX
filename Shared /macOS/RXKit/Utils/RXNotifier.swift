@@ -9,22 +9,25 @@
 import Combine
 
 public class RXNotifier {
-
-    var selected = ""
-
-    var onRemove: ((String) -> Void)?
-    let onUpdate = PassthroughSubject<Bool, Never>()
-
+    
+    internal var onRemove: ((RXApp) -> Void)?
+    internal let onUpdate = PassthroughSubject<Bool, Never>()
+    internal var selectedApp: RXApp?
+    
     public static let local = RXNotifier()
-
-    public func selected(app: String) {
-        selected = app
+    
+    public func selected(app: RXApp) {
+        selectedApp = app
     }
-
+    
     public func pressedRemove() {
-        onRemove?(selected)
+        guard let app = selectedApp else {
+            return
+        }
+        onRemove?(app)
+        onUpdate.send(true)
     }
-
+    
     func updated() {
         onUpdate.send(true)
     }

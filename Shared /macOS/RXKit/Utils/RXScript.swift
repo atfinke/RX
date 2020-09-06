@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RXScript: Codable, Equatable, Hashable {
+public struct RXScript: Codable, Equatable {
     
     // MARK: - Properties -
     
@@ -20,5 +20,14 @@ public struct RXScript: Codable, Equatable, Hashable {
     public init(name: String, fileURL: URL) {
         self.name = name
         self.fileURL = fileURL
+    }
+    
+    // MARK: - Running -
+    
+    public func run() {
+        let process = Process()
+        process.launchPath = "/usr/bin/osascript"
+        process.arguments = [fileURL.path]
+        process.launch()
     }
 }

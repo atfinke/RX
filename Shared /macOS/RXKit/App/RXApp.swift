@@ -8,7 +8,7 @@
 
 import Cocoa
 
-public class RXApp: ObservableObject, Codable, Equatable, Hashable, Identifiable {
+public class RXApp: ObservableObject, Codable, Equatable, Identifiable {
 
     // MARK: - Types -
 
@@ -30,10 +30,15 @@ public class RXApp: ObservableObject, Codable, Equatable, Hashable, Identifiable
         self.buttons = []
 
         // Grab the prominent colors from the app icon to set as the default button colors
-        let app = NSRunningApplication.runningApplications(withBundleIdentifier: bundleID).first
-        let colors = IconProcessing.run(for: app, colorCount: 1)
-        (0..<buttonCount).forEach { index in
-            let button = RXAppButton(number: index + 1, restingColor: colors.first ?? RXColor(.white))
+        var colors = [RXColor]()
+        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+            colors = IconProcessing.run(for: url.path, colorCount: 1)
+        }
+        
+        colors = colors.reversed() // most prominent color is first, so flip so we pop first
+        for _ in 0..<buttonCount {
+            let color = colors.popLast() ?? RXColor(.blue)
+            let button = RXAppButton(restingColor: color)
             buttons.append(button)
         }
     }
@@ -41,7 +46,7 @@ public class RXApp: ObservableObject, Codable, Equatable, Hashable, Identifiable
     // MARK: - Helpers -
 
     static func defaultApp(rxButtons: Int) -> RXApp {
-        return RXApp(name: "Default", bundleID: "", buttonCount: rxButtons)
+        return RXApp(name: "Default", bundleID: "com.andrewfinke.RX.default", buttonCount: rxButtons)
     }
 
     // MARK: - Codable -
@@ -64,14 +69,6 @@ public class RXApp: ObservableObject, Codable, Equatable, Hashable, Identifiable
 
     public static func == (lhs: RXApp, rhs: RXApp) -> Bool {
         return lhs.name == rhs.name && lhs.bundleID == rhs.bundleID && lhs.buttons == rhs.buttons
-    }
-
-    // MARK: - Hashable -
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(name)
-        hasher.combine(bundleID)
-        hasher.combine(buttons)
     }
 
     // MARK: - Helpers -

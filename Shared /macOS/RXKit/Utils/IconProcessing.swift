@@ -16,15 +16,15 @@ public class IconProcessing {
 
     // MARK: - Run -
 
-    public static func run(for app: NSRunningApplication?, colorCount: Int) -> [RXColor] {
+    public static func run(for appFilePath: String, colorCount: Int) -> [RXColor] {
 
         var imagePixels = [Pixel]()
         var means = [Pixel]()
         var clusters = [[Pixel]]()
 
+        let icon = NSWorkspace.shared.icon(forFile: appFilePath)
         var rect = NSRect(x: 0, y: 0, width: imageSize, height: imageSize)
-        guard let app = app,
-              let rep = app.icon?.representations
+        guard let rep = icon.representations
                 .sorted(by: { $0.size.width < $1.size.height })
                 .first(where: { min($0.size.width, $0.size.height) >= imageSize }),
               let image = rep.cgImage(forProposedRect: &rect, context: nil, hints: nil),

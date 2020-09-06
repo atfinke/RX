@@ -16,6 +16,7 @@ struct ScriptSelection: View {
     @Binding var button: RXAppButton
 
     let title: String
+    let appName: String
     private let openPanel = OpenPanelBridge()
 
     // MARK: - Body -
@@ -23,17 +24,28 @@ struct ScriptSelection: View {
     var body: some View {
         VStack {
             Button(action: {
-                if let script = self.openPanel.selectRXScript() {
+                if let script = self.openPanel.selectRXScript(appName: appName) {
                     self.button.action = script
                 }
             }, label: {
                 Text(title)
-                    .frame(width: 65)
+                    .frame(minWidth: 65)
             })
             scriptLabel
-                .font(.system(size: 9, weight: .regular, design: .monospaced))
+                .font(.system(size: 11, weight: .regular, design: .monospaced))
                 .multilineTextAlignment(.center)
                 .frame(height: 20)
+                .onTapGesture {
+                    guard let url = button.action?.fileURL else { return }
+                    NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
+                }
+                .onHover { isHovering in
+                    if isHovering && button.action?.fileURL != nil {
+                        NSCursor.pointingHand.push()
+                    } else {
+                        NSCursor.pop()
+                    }
+                }
         }
     }
 
@@ -41,7 +53,7 @@ struct ScriptSelection: View {
         if let script = button.action {
             return Text(script.name)
         } else {
-            return Text("-")
+            return Text("No Action Set")
         }
     }
 }

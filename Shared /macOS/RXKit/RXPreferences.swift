@@ -8,66 +8,7 @@
 
 import Cocoa
 import Combine
-
-public struct RXSerials {
-    
-    public static let store: [RXHardware.Edition: [String]] = [
-        .R1: [
-            "01",
-            "02",
-            "03"
-        ],
-        
-        .RD: [
-            "20"
-        ]
-    ]
-    
-    
-}
-
-public struct RXHardware: Codable {
-    public init(serialNumber: String, edition: RXHardware.Edition) {
-        self.serialNumber = serialNumber
-        self.edition = edition
-    }
-    
-    
-    public enum Edition: String, Codable, Identifiable {
-        case R1
-        case RD
-
-        public var id: String { self.rawValue }
-        public var buttons: Int {
-            switch self {
-            case .R1: return 4
-            case .RD: return 1
-            }
-        }
-    }
-    
-    public let serialNumber: String
-    public let edition: Edition
-    
-    
-    static public func loadFromDisk() throws -> RXHardware {
-         guard let hardwareData = try? Data(contentsOf: RXURL.hardwareData()),
-             let hardware = try? JSONDecoder().decode(RXHardware.self, from: hardwareData) else {
-                 throw RXPreferencesError.initalSetupNeeded
-         }
-         return hardware
-     }
-    
-    
-    public func save() {
-        guard let data = try? JSONEncoder().encode(self) else { return }
-        try? data.write(to: RXURL.hardwareData())
-    }
-}
-
-enum RXPreferencesError: Error {
-    case initalSetupNeeded
-}
+import os.log
 
 /// Main object for storing preferences
 public final class RXPreferences: ObservableObject, Codable {
@@ -76,6 +17,10 @@ public final class RXPreferences: ObservableObject, Codable {
 
     private enum CodingKeys: CodingKey {
         case hardware, customApps, defaultApps
+    }
+    
+    enum RXPreferencesError: Error {
+        case initalSetupNeeded
     }
 
     // MARK: - Properties -
@@ -94,6 +39,8 @@ public final class RXPreferences: ObservableObject, Codable {
         return defaults
     }()
     
+    private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RX Prefs Object")
+    
     // MARK: - Initalization -
     
     init(hardware: RXHardware) {
@@ -108,8 +55,10 @@ public final class RXPreferences: ObservableObject, Codable {
         let preferences: RXPreferences
         if let data = try? Data(contentsOf: RXURL.appData()), let object = try? JSONDecoder().decode(RXPreferences.self, from: data) {
             preferences = object
+            os_log("Found existing prefs on disk", log: preferences.log, type: .info)
         } else {
             preferences = RXPreferences(hardware: hardware)
+            os_log("Creating new prefs", log: preferences.log, type: .info)
         }
         
         if writingEnabled {
@@ -137,18 +86,27 @@ public final class RXPreferences: ObservableObject, Codable {
     // MARK: - Saving Changes -
     
     func enableWritingToDisk() {
+        if onUpdateCancellable != nil {
+            fatalError()
+        }
+        
         onUpdateCancellable = RXNotifier.local.onUpdate
-            .debounce(for: .seconds(0.25), scheduler: RunLoop.main)
+            .debounce(for: .seconds(0.1), scheduler: RunLoop.main)
             .sink(receiveValue: { _ in
                 guard let data = try? JSONEncoder().encode(self) else { fatalError() }
                 try? data.write(to: RXURL.appData())
-                let version = RXPreferences.defaults.integer(forKey: RXPreferences.versionKey)
-                RXPreferences.defaults.set(version + 1, forKey: RXPreferences.versionKey)
+                os_log("triggerRXdUpdate called", log: self.log, type: .info)
+                RXPreferences.triggerRXdUpdate()
         })
 
         RXNotifier.local.onRemove = { app in
-            self.customApps = self.customApps.filter { $0.name != app }
+            self.customApps = self.customApps.filter { $0.bundleID != app.bundleID }
         }
+    }
+    
+    public static func triggerRXdUpdate() {
+        let version = RXPreferences.defaults.integer(forKey: RXPreferences.versionKey)
+        RXPreferences.defaults.set(version + 1, forKey: RXPreferences.versionKey)
     }
 
     // MARK: - Notifications -

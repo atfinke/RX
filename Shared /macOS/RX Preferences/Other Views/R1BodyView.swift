@@ -37,11 +37,13 @@ struct R1BodyView: View {
             HStack {
                 ForEach(buttons.indices, id: \.self) { index in
                     HStack {
-                        R1ButtonView(
+                        RXButtonView(
                             button: Binding(
                                 get: { self.buttons[index] },
                                 set: { self.buttons[index] = $0 }),
-                            state: self.state
+                            state: self.state,
+                            innerRadius: 6,
+                            lineWidth: 3.5
                         )
                         if index != self.buttons.count - 1 {
                             Spacer()

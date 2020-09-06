@@ -8,7 +8,7 @@
 
 import SwiftUI
 
-public struct RXColor: Codable, Equatable, Hashable {
+public struct RXColor: Codable, Equatable {
 
      // MARK: - Properties -
 
@@ -27,7 +27,7 @@ public struct RXColor: Codable, Equatable, Hashable {
     // MARK: - Initalization -
 
     public init(_ color: NSColor) {
-        // handles converting colorspace
+        // handles colorspace
         guard let ciColor = CIColor(color: color) else {
             fatalError()
         }
