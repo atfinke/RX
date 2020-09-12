@@ -30,12 +30,12 @@ public struct RXURL {
     }
 
     public static func appData() -> URL {
-        return support.appendingPathComponent("appData")
+        return support.appendingPathComponent("Configuration.json")
     }
     
     public static func hardwareData() -> URL {
         createDirectory(at: support) // in case of reset
-        return support.appendingPathComponent("hardwareData")
+        return support.appendingPathComponent("Hardware.json")
     }
 
     private static func createDirectory(at url: URL) {

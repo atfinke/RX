@@ -13,7 +13,6 @@
 		14A8B8082480FE9100E49B9F /* RXColorProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A8B8072480FE9100E49B9F /* RXColorProvider.swift */; };
 		14B2840224C63EEB000BA96C /* IconProcessing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14B2840124C63EEB000BA96C /* IconProcessing.swift */; };
 		14D3F60424F485F200332836 /* RXHardware.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D3F60324F485F200332836 /* RXHardware.swift */; };
-		14D3F60624F4863800332836 /* RXSerials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14D3F60524F4863800332836 /* RXSerials.swift */; };
 		14FC6316247C923800E9B7BA /* RXURL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC6315247C923800E9B7BA /* RXURL.swift */; };
 		14FC631D247C93CE00E9B7BA /* RXPreferences.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631C247C93CE00E9B7BA /* RXPreferences.swift */; };
 		14FC631F247C948000E9B7BA /* RXApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC631E247C948000E9B7BA /* RXApp.swift */; };
@@ -30,7 +29,6 @@
 		14A8B8072480FE9100E49B9F /* RXColorProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXColorProvider.swift; sourceTree = "<group>"; };
 		14B2840124C63EEB000BA96C /* IconProcessing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IconProcessing.swift; sourceTree = "<group>"; };
 		14D3F60324F485F200332836 /* RXHardware.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXHardware.swift; sourceTree = "<group>"; };
-		14D3F60524F4863800332836 /* RXSerials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXSerials.swift; sourceTree = "<group>"; };
 		14FC630A247C921200E9B7BA /* RXKit.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = RXKit.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		14FC630E247C921200E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6315247C923800E9B7BA /* RXURL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RXURL.swift; sourceTree = "<group>"; };
@@ -106,7 +104,6 @@
 			children = (
 				14FC631C247C93CE00E9B7BA /* RXPreferences.swift */,
 				14D3F60324F485F200332836 /* RXHardware.swift */,
-				14D3F60524F4863800332836 /* RXSerials.swift */,
 				1458C91C24AACE030018477C /* App */,
 				1458C91A24AACDEC0018477C /* Colors */,
 				1458C91B24AACDF70018477C /* Utils */,
@@ -197,7 +194,6 @@
 				14FC631D247C93CE00E9B7BA /* RXPreferences.swift in Sources */,
 				14D3F60424F485F200332836 /* RXHardware.swift in Sources */,
 				14FC6325247C94DB00E9B7BA /* RXColor.swift in Sources */,
-				14D3F60624F4863800332836 /* RXSerials.swift in Sources */,
 				1458C91724AACC260018477C /* RXAppButtonStateColors.swift in Sources */,
 				14FC6321247C94AB00E9B7BA /* RXScript.swift in Sources */,
 				14FC631F247C948000E9B7BA /* RXApp.swift in Sources */,

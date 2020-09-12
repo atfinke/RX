@@ -109,7 +109,7 @@ public final class RXPreferences: ObservableObject, Codable {
         RXPreferences.defaults.set(version + 1, forKey: RXPreferences.versionKey)
     }
 
-    // MARK: - Notifications -
+    // MARK: - App Group Notifications -
     
     private static var observer: VersionObserver?
     private class VersionObserver: NSObject {

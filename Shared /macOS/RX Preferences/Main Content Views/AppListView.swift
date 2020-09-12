@@ -25,11 +25,11 @@ struct AppListView: View {
                 Section(header: Text("Apps")) {
                     ForEach(preferences.customApps) { app in
                         if hardwareEdition == .R1 {
-                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(preferences)) {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(self.preferences)) {
                                 Text(app.name)
                             }
                         } else if hardwareEdition == .RD {
-                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(preferences)) {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(self.preferences)) {
                                 Text(app.name)
                             }
                         }
@@ -38,11 +38,11 @@ struct AppListView: View {
                 Section(header: Text("Other")) {
                     ForEach(preferences.defaultApps) { app in
                         if hardwareEdition == .R1 {
-                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(preferences)) {
+                            NavigationLink(destination: R1AppConfigurationView().environmentObject(app).environmentObject(self.preferences)) {
                                 Text(app.name)
                             }
                         } else if hardwareEdition == .RD {
-                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(preferences)) {
+                            NavigationLink(destination: RDAppConfigurationView().environmentObject(app).environmentObject(self.preferences)) {
                                 Text(app.name)
                             }
                         }
@@ -58,7 +58,8 @@ struct AppListView: View {
                 }
                 Spacer()
                 Button(action: {
-                    if let (name, bundleID) = self.openPanel.selectApp() {
+                    let existing = self.preferences.customApps.map { $0.bundleID }
+                    if let (name, bundleID) = self.openPanel.selectApp(), !existing.contains(bundleID) {
                         let app = RXApp(name: name, bundleID: bundleID, buttonCount: self.preferences.hardware.edition.buttons)
                         self.preferences.customApps.append(app)
                         self.preferences.customApps.sort(by: { $0.name < $1.name })

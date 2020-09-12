@@ -57,19 +57,21 @@ class RXNearbyManager: NSObject, ObservableObject, CBCentralManagerDelegate {
     }
 
     func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
-        guard let name = peripheral.name, name.prefix(3) == "RX:" else { return }
+        guard let name = peripheral.name, name.count == 5, name.prefix(3) == "RX:" else { return }
         let serialNumber = String(name.dropFirst(3))
         
         os_log("%{public}s: %{public}s", log: log, type: .info, #function, serialNumber)
         
-        for (edition, serials) in RXSerials.store where serials.contains(serialNumber) {
-            let hardware = RXHardware(serialNumber: serialNumber, edition: edition)
+        do {
+            let hardware = try RXHardware(serialNumber: serialNumber)
             DispatchQueue.main.async {
                 if !self.seenNearbyHardware.contains(hardware) && !self.queuedNearbyHardware.contains(hardware) {
                     self.queuedNearbyHardware.append(hardware)
                     self.presentHardwareIfNeeded()
                 }
             }
+        } catch {
+            os_log("%{public}s: invalid sn %{public}s", log: log, type: .error, #function, serialNumber)
         }
     }
     

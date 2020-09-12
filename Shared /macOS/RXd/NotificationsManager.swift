@@ -16,6 +16,7 @@ class NotificationsManager: NSObject, UNUserNotificationCenterDelegate {
     
     private let center = UNUserNotificationCenter.current()
     private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd notifications")
+    private var isSetup = false
     
     // MARK: - Initialization -
     
@@ -28,7 +29,10 @@ class NotificationsManager: NSObject, UNUserNotificationCenterDelegate {
     
     func auth() {
         os_log("Auth triggered", log: log, type: .info)
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert]) { _, _ in }
+        center.requestAuthorization(options: [.alert]) { _, _ in
+            self.isSetup = true
+        }
+//        center.removeAllDeliveredNotifications()
     }
     
     func show(title: String, text: String?) {
@@ -39,10 +43,19 @@ class NotificationsManager: NSObject, UNUserNotificationCenterDelegate {
             content.body = body
         }
         
-        let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
-        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
-        center.add(request)
+        func deliverIfSetup() {
+            if isSetup {
+                let dateComponents = Calendar.current.dateComponents(in: TimeZone.current, from: Date())
+                let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+                let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+                center.add(request)
+            } else {
+                DispatchQueue.global().asyncAfter(deadline: .now() + 1) {
+                    deliverIfSetup()
+                }
+            }
+        }
+        deliverIfSetup()
     }
     
     // MARK: - UNUserNotificationCenterDelegate -
@@ -55,11 +68,11 @@ class NotificationsManager: NSObject, UNUserNotificationCenterDelegate {
         os_log("Clicked notification", log: log, type: .info)
         
         guard response.actionIdentifier == UNNotificationDefaultActionIdentifier &&
-                response.notification.request.content.title.contains(" Not Configured") else {
+                response.notification.request.content.title.contains("Not Configured") else {
             return
         }
         
-        os_log("Opening RX Prefs aoo", log: log, type: .info)
+        os_log("Opening RX Prefs app", log: log, type: .info)
         NSWorkspace.shared.launchApplication("RX Preferences")
     }
     

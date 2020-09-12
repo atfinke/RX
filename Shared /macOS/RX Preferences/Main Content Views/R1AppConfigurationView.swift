@@ -21,12 +21,12 @@ struct R1AppConfigurationView: View {
     var body: some View {
         RXNotifier.local.selected(app: app)
         return VStack {
-            if !(preferences.customApps + preferences.defaultApps).contains(app) {
+            if !(self.preferences.customApps + self.preferences.defaultApps).contains(app) {
                 Text("Select an App")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 LeftText(
-                    text: app.name,
+                    text: self.app.name,
                     font: Font.system(size: 17, weight: .semibold, design: .rounded)
                 )
                 Divider()
@@ -62,27 +62,31 @@ struct R1AppConfigurationView: View {
                 )
                 .padding(.top, 5)
                 
-                HStack {
-                    ForEach(app.buttons.indices, id: \.self) { index in
-                        HStack {
-                            ScriptSelection(
-                                button: Binding(
-                                    get: { self.app.buttons[index] },
-                                    set: { self.app.buttons[index] = $0 }),
-                                title: (index + 1).description,
-                                appName: app.name
-                            )
-                            if index != self.app.buttons.count - 1 {
-                                Spacer()
-                            }
-                        }
-                    }
-                }
+                actionsView
                 Spacer()
             }
         }
         .padding([.leading, .trailing], 30)
         .padding(.top, 20)
         
+    }
+    
+    private var actionsView: some View {
+        HStack {
+            ForEach(app.buttons.indices, id: \.self) { index in
+                HStack {
+                    ScriptSelection(
+                        button: Binding(
+                            get: { self.app.buttons[index] },
+                            set: { self.app.buttons[index] = $0 }),
+                        title: (index + 1).description,
+                        appName: self.app.name
+                    )
+                    if index != self.app.buttons.count - 1 {
+                        Spacer()
+                    }
+                }
+            }
+        }
     }
 }

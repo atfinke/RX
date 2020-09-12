@@ -24,7 +24,7 @@ struct ScriptSelection: View {
     var body: some View {
         VStack {
             Button(action: {
-                if let script = self.openPanel.selectRXScript(appName: appName) {
+                if let script = self.openPanel.selectRXScript(appName: self.appName) {
                     self.button.action = script
                 }
             }, label: {
@@ -36,11 +36,11 @@ struct ScriptSelection: View {
                 .multilineTextAlignment(.center)
                 .frame(height: 20)
                 .onTapGesture {
-                    guard let url = button.action?.fileURL else { return }
+                    guard let url = self.button.action?.fileURL else { return }
                     NSWorkspace.shared.selectFile(url.path, inFileViewerRootedAtPath: "")
                 }
                 .onHover { isHovering in
-                    if isHovering && button.action?.fileURL != nil {
+                    if isHovering && self.button.action?.fileURL != nil {
                         NSCursor.pointingHand.push()
                     } else {
                         NSCursor.pop()

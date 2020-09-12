@@ -33,7 +33,7 @@ struct SetupView: View {
             
             ZStack {
                 if isDisplayingHardware {
-                    Text("\(nearbyManager.queuedNearbyHardware[0].edition.rawValue) with serial number \(nearbyManager.queuedNearbyHardware[0].serialNumber) is nearby. Is this yours?")
+                    Text("Would you like to setup \(nearbyManager.queuedNearbyHardware[0].edition.rawValue)\nwith serial number \(nearbyManager.queuedNearbyHardware[0].serialNumber)?")
                         .multilineTextAlignment(.center)
                 } else {
                     ActivityIndicator().scaleEffect(0.75)
@@ -48,12 +48,12 @@ struct SetupView: View {
                 })
                 .padding()
                 Button("   Yes!   ", action: {
-                    onFinish(nearbyManager.queuedNearbyHardware[0])
+                    self.onFinish(self.nearbyManager.queuedNearbyHardware[0])
                 })
                 .padding()
                 
             }.opacity(isDisplayingHardware ? 1 : 0)
-        }.frame(width: 240, height: 180)
+        }.frame(width: 220, height: 175)
     }
 }
 

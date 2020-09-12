@@ -1,5 +1,5 @@
 //
-//  System.swift
+//  Macintosh.swift
 //  RXd
 //
 //  Created by Andrew Finke on 6/29/20.
@@ -14,17 +14,17 @@ class Macintosh {
     // MARK: - Types -
 
     enum State {
-        case on(bundleID: String), sleeping
+        case on(bundleID: String), wakingFromSleep, sleeping
     }
 
     // MARK: - Properties -
 
-    private var isScreenLocked = false
     var onStateChange: ((_ state: State) -> Void)? {
         didSet {
-            self.updateToFrontmostApp()
+            updateToFrontmostApp()
         }
     }
+    private var isScreenLocked = false
     private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd macOS")
 
     // MARK: - Initalization -
@@ -46,7 +46,7 @@ class Macintosh {
             using: { _ in
                 os_log("com.apple.screenIsLocked", log: self.log, type: .info)
                 self.onStateChange?(.sleeping)
-                self.isScreenLocked = true
+                 self.isScreenLocked = true
             })
 
         DistributedNotificationCenter.default().addObserver(
@@ -55,7 +55,7 @@ class Macintosh {
             queue: nil,
             using: { _ in
                 os_log("com.apple.screenIsUnlocked", log: self.log, type: .info)
-                self.updateToFrontmostApp()
+                 self.onStateChange?(.wakingFromSleep)
                 self.isScreenLocked = false
             })
 
@@ -68,7 +68,7 @@ class Macintosh {
     }
     
     private func update(to app: NSRunningApplication?) {
-        guard let bundleID = app?.bundleIdentifier, !self.isScreenLocked else { return }
+        guard let bundleID = app?.bundleIdentifier, !isScreenLocked else { return }
         os_log("frontmost app: %{public}s", log: self.log, type: .info, bundleID)
 
         onStateChange?(.on(bundleID: bundleID))

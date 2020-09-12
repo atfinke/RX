@@ -36,7 +36,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     
     func showWindow() {
         rxdTimer?.invalidate()
-        
+
         do {
             let preferences = try RXPreferences.loadFromDisk(writingEnabled: true)
             let contentView = PreferencesContentView(preferences: preferences)
@@ -49,7 +49,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 
                 // Does not work when RXd launched from Xcode
                 if NSRunningApplication.runningApplications(withBundleIdentifier: rxdBundleID).count == 0 {
-                    window.title = "RX Preferences - RXd Not Running"
+                    window.title = "RX Preferences - RXd Not Open"
                 } else {
                     window.title = "RX Preferences"
                 }

@@ -9,8 +9,11 @@ class HardwareConfig:
 
     SINGLE_BUTTON_DIGITAL_RGB_OUTPUTS = [board.D11, board.D10, board.D9]
 
-    TRANSITION_DURATION = 0.2
+    TRANSITION_DURATION = 0.32
     MAX_LED_VALUE = 65535
 
-    NAME = "Andrew's R1"
+    HEARTBEAT_INTERVAL = 120
+    HEARTBEAT_MAX_RESPONSE_TIME = 5
+    
+    NAME = "TBD's RD"
     SERIAL_NUMBER = "10"

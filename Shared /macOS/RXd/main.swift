@@ -18,9 +18,9 @@ class Main {
         do {
             return try RXPreferences.loadFromDisk(writingEnabled: false)
         } catch {
-            notificationsManager.show(title: "Inital setup not complete", text: "Open the RX Preferences app to finish setup")
+            notificationsManager.show(title: "Inital Setup Not Complete", text: "Open the RX Preferences app to finish setup")
             os_log("RX Preferences app hasn't completed inital setup", log: self.log, type: .error)
-            fatalError()
+            exit(0)
         }
     }()
     
@@ -38,11 +38,14 @@ class Main {
         return RXConnectionManager(hardware: preferences.hardware)
     }()
     
+    private var isInitalConnection = true
+    
     private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd Main")
     
     // MARK: - Initalization -
     
     init() {
+        notificationsManager.auth()
         macintosh.onStateChange = onSystemStateChange(_:)
         connectionManager.onUpdate = onRXUpdate(_:)
         
@@ -57,13 +60,10 @@ class Main {
                     
                     self.updateActiveApp(to: self.activeRXApp.bundleID)
                 } catch {
-                    if self.connectionManager.isConnected {
-                        self.connectionManager.send(message: .disconnect)
-                        os_log("RX Preferences app triggered reset", log: self.log, type: .info)
-                        exit(0) // Path triggered by RX Prefs reset
-                    } else {
-                        os_log("RX Preferences couldn't be read", log: self.log, type: .error)
-                    }
+                    // only possible if there was previously valid prefs object
+                    self.connectionManager.send(message: .disconnect)
+                    os_log("RX Preferences app triggered reset", log: self.log, type: .info)
+                    exit(0) // Path triggered by RX Prefs reset
                 }
             }
         }
@@ -76,10 +76,12 @@ class Main {
             switch state {
             case .on(let bundleID):
                 self.updateActiveApp(to: bundleID)
-                self.connectionManager.isScanningEnabled = true
             case .sleeping:
-                self.connectionManager.send(message: .ledsOff)
                 self.connectionManager.isScanningEnabled = false
+                self.connectionManager.send(message: .disconnect)
+            case .wakingFromSleep:
+                self.connectionManager.isScanningEnabled = true
+                self.connectionManager.startScan()
             }
         }
     }
@@ -95,12 +97,7 @@ class Main {
             fatalError()
         }
 
-        let previousColors = activeRXApp.buttons.map { $0.colors }
-        if previousColors != newApp.buttons.map({ $0.colors }) {
-            os_log("Diff colors", log: log, type: .info)
-            connectionManager.send(message: .appData(newApp))
-        }
-        
+        connectionManager.send(message: .appData(newApp))
         activeRXApp = newApp
     }
 
@@ -114,7 +111,10 @@ class Main {
         DispatchQueue.main.async {
             switch update {
             case .connected(let name):
-                show(title: "Connected to \(name)", text: nil)
+                if self.isInitalConnection {
+                    self.isInitalConnection = false
+                    show(title: "Connected to \(name)", text: nil)
+                }
                 self.connectionManager.send(message: .appData(self.activeRXApp))
             case .error(let error):
                 show(title: "\(self.preferences.hardware.edition.rawValue) Error", text: error)

@@ -30,14 +30,20 @@ public class RXApp: ObservableObject, Codable, Equatable, Identifiable {
         self.buttons = []
 
         // Grab the prominent colors from the app icon to set as the default button colors
-        var colors = [RXColor]()
+//        var colors = [RXColor]()
+//        if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
+//            colors = IconProcessing.run(for: url.path, colorCount: 1)
+//        }
+//
+//        colors = colors.reversed() // most prominent color is first, so flip so we pop first
+        
+        var color: RXColor?
         if let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: bundleID) {
-            colors = IconProcessing.run(for: url.path, colorCount: 1)
+            color = IconProcessing.run(for: url.path, colorCount: 1).first ?? RXColor(.blue)
         }
         
-        colors = colors.reversed() // most prominent color is first, so flip so we pop first
         for _ in 0..<buttonCount {
-            let color = colors.popLast() ?? RXColor(.blue)
+            let color = color ?? RXColor(.blue)
             let button = RXAppButton(restingColor: color)
             buttons.append(button)
         }

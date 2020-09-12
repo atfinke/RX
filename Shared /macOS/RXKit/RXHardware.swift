@@ -30,7 +30,10 @@ public struct RXHardware: Codable, Equatable {
         public var serviceCBUUID: CBUUID {
             return CBUUID(string: "6e400001-b5a3-f393-e0a9-e50e24dcca9e")
         }
-        
+    }
+    
+    public enum RXHardwareError: Error {
+        case invalidSerialNumber
     }
     
     // MARK: - Properties -
@@ -40,9 +43,17 @@ public struct RXHardware: Codable, Equatable {
     
     // MARK: - Initalization -
     
-    public init(serialNumber: String, edition: RXHardware.Edition) {
+    public init(serialNumber: String) throws {
         self.serialNumber = serialNumber
-        self.edition = edition
+        
+        guard let val = Int(serialNumber), val > 0, val < 100 else {
+            throw RXHardwareError.invalidSerialNumber
+        }
+        if val < 10 {
+            edition = .R1
+        } else {
+            edition = .RD
+        }
     }
     
     // MARK: - Disk -

@@ -70,7 +70,9 @@ class Main:
 
                 # sleep a bit unless animating between colors
                 if not self.transition_start_time:
+                    self.bluetooth.heartbeat()
                     time.sleep(0.01)
+
 
             print("not connected")
             self.lights.set_to_colors_tuple((0, 0, 0))
@@ -120,19 +122,18 @@ class Main:
         if data is None or len(data) == 0:
             return
 
-        if "r" in data: # RXd ready for name
-            self.bluetooth.write("n:" + HardwareConfig.NAME)
-            return
-        if "s" in data: # RXd sending new colors
-            self.clear_buffers()
-            data = data[1:]
-        elif "x" in data: # RXd says to turn off leds
-            self.clear_buffers()
-            self.lights.set_to_colors_tuple((0, 0, 0))
-            return
-        elif "q" in data: # RXd says to disconnect
+        if "q" in data: # RXd says to disconnect
             self.clear_buffers()
             self._reset_bluetooth()
+            return
+        elif "n" in data: # RXd ready for name
+            self.bluetooth.write("n:" + HardwareConfig.NAME)
+            data = data.replace("n", "")
+        elif "s" in data: # RXd sending new colors
+            self.clear_buffers()
+            data = data[1:]
+
+        if len(data) == 0:
             return
 
         # Seperate colors

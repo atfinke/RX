@@ -19,17 +19,17 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     }
     
     enum RXWriteMessage {
-        case ledsOff, disconnect, appData(RXApp), readyForName
+        case disconnect, appData(RXApp), readyForName, heartbeat
         
         fileprivate func data() -> [Data] {
             var values: [String]
             switch self {
             case .readyForName:
-                values = ["r"]
-            case .ledsOff:
-                values = ["x"]
+                values = ["n"]
             case .disconnect:
                 values = ["q"]
+            case .heartbeat:
+                values = ["h"]
             case .appData(let app):
                 values = ["s"]
 
@@ -52,32 +52,28 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     private enum RXReadMessage: String {
         case name = "n:"
         case buttonPressed = "b:"
+        case heartbeat = "h"
     }
 
     // MARK: - Properties -
 
     private let hardware: RXHardware
     
-    private var manager: CBCentralManager?
+    private lazy var manager: CBCentralManager = {
+        return CBCentralManager(delegate: self, queue: nil)
+    }()
+    
     private var peripheral: CBPeripheral?
 
     private var readCharacteristic: CBCharacteristic?
     private var writeCharacteristic: CBCharacteristic?
+    private let writeQueue = DispatchQueue(label: "com.andrewfinke.RX.write", qos: .userInitiated)
 
     private var bufferedMessages = [Data]()
+    private var errorNotificationDelayTimer: Timer?
     private let log = OSLog(subsystem: "com.andrewfinke.RX", category: "RXd Bluetooth")
 
-    var isScanningEnabled = true {
-        didSet {
-            if isScanningEnabled && !oldValue {
-                startScan()
-            }
-        }
-    }
-    
-    var isConnected: Bool {
-        return peripheral != nil
-    }
+    var isScanningEnabled = true
     
     // MARK: - Callbacks -
 
@@ -89,80 +85,68 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s", log: log, type: .info, #function)
         self.hardware = hardware
         super.init()
-        manager = CBCentralManager(delegate: self, queue: nil)
+        let _ = manager
     }
     
     // MARK: - Connection -
 
     func startScan() {
-        guard isScanningEnabled else {
+        guard isScanningEnabled && peripheral == nil else {
             return
         }
         
-        os_log("%{public}s: scanForPeripherals", log: log, type: .info, #function)
-        manager?.scanForPeripherals(
+        guard manager.state == .poweredOn else {
+            os_log("%{public}s: not powered on yet", log: log, type: .error, #function)
+            return
+        }
+        
+        os_log("%{public}s: scanForPeripherals: %{public}s", log: log, type: .info, #function, hardware.serialNumber)
+        manager.scanForPeripherals(
             withServices: [hardware.edition.serviceCBUUID],
             options: [CBCentralManagerScanOptionAllowDuplicatesKey: false]
         )
     }
 
-    func discovered(device: CBPeripheral) {
-        peripheral = device
-        manager?.stopScan()
-        manager?.connect(device, options: [CBConnectPeripheralOptionNotifyOnConnectionKey: true])
-    }
-
-    func errorOccurred(_ error: String) {
-        if let peripheral = peripheral {
-            manager?.cancelPeripheralConnection(peripheral)
-            self.peripheral = nil
-        }
-        onUpdate?(.error(error))
-    }
-    
     // MARK: - Sending Messages -
 
     func send(message: RXWriteMessage) {
-        guard let peripheral = peripheral else { return }
-        bufferedMessages.removeAll()
+        writeQueue.async {
+            guard let peripheral = self.peripheral else {
+                return
+            }
 
-        switch message {
-        case .readyForName:
-            os_log("%{public}s: readyForName", log: log, type: .info, #function)
-        case .ledsOff:
-            os_log("%{public}s: ledsOff", log: log, type: .info, #function)
-        case .disconnect:
-            os_log("%{public}s: disconnect", log: log, type: .info, #function)
-        case .appData(let app):
-            os_log("%{public}s: Colors: %{public}s", log: log, type: .info, #function, app.name)
-        }
-        
-        addToBuffer(message.data())
-        
-        if case RXWriteMessage.disconnect = message {
-            manager?.delegate = nil
-            peripheral.delegate = nil
-            manager?.cancelPeripheralConnection(peripheral)
+            switch message {
+            case .readyForName:
+                os_log("%{public}s: readyForName", log: self.log, type: .info, #function)
+            case .disconnect:
+                os_log("%{public}s: disconnect", log: self.log, type: .info, #function)
+            case .appData(let app):
+                os_log("%{public}s: Colors: %{public}s", log: self.log, type: .info, #function, app.name)
+            case .heartbeat:
+                os_log("%{public}s: heartbeat", log: self.log, type: .info, #function)
+            }
             
-            self.peripheral = nil
-        }
-    }
-    
-    private func addToBuffer(_ data: [Data]) {
-        for item in data {
-            if let prev = bufferedMessages.last, prev.count + item.count < hardware.edition.maxMessageSize {
-                bufferedMessages[bufferedMessages.count - 1] = prev + item
-            } else {
-                bufferedMessages.append(item)
+            for item in message.data() {
+                if let prev = self.bufferedMessages.last, prev.count + item.count < self.hardware.edition.maxMessageSize {
+                    self.bufferedMessages[self.bufferedMessages.count - 1] = prev + item
+                } else {
+                    self.bufferedMessages.append(item)
+                }
+            }
+            self.sendFromBuffer()
+            
+            if case RXWriteMessage.disconnect = message {
+                self.manager.cancelPeripheralConnection(peripheral)
             }
         }
-        sendFromBuffer()
     }
 
     private func sendFromBuffer() {
-        guard !bufferedMessages.isEmpty, let peripheral = peripheral, let writeCharacteristic = writeCharacteristic  else { return }
-        let data = bufferedMessages.removeFirst()
-        peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
+        writeQueue.async {
+            guard !self.bufferedMessages.isEmpty, let peripheral = self.peripheral, let writeCharacteristic = self.writeCharacteristic  else { return }
+            let data = self.bufferedMessages.removeFirst()
+            peripheral.writeValue(data, for: writeCharacteristic, type: .withResponse)
+        }
     }
 
     // MARK: - CBCentralManagerDelegate -
@@ -188,7 +172,9 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s: %{public}s", log: log, type: .info, #function, peripheral.name ?? "-")
         if peripheral.name == "RX:" + hardware.serialNumber {
             os_log("%{public}s: found RX: %{public}s", log: log, type: .info, #function, peripheral.identifier.uuidString)
-            discovered(device: peripheral)
+            self.peripheral = peripheral
+            central.stopScan()
+            central.connect(peripheral, options: nil)
         }
     }
 
@@ -196,17 +182,28 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s", log: log, type: .info, #function)
         peripheral.delegate = self
         peripheral.discoverServices([hardware.edition.serviceCBUUID])
+        errorNotificationDelayTimer?.invalidate()
     }
 
     func centralManager(_ central: CBCentralManager, didFailToConnect peripheral: CBPeripheral, error: Error?) {
         os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-        errorOccurred("Fail to connect issue")
+        self.peripheral = nil
+        startScan()
     }
 
     func centralManager(_ central: CBCentralManager, didDisconnectPeripheral peripheral: CBPeripheral, error: Error?) {
         os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-        errorOccurred("Disconnected")
-        startScan()
+        
+        self.peripheral = nil
+        peripheral.delegate = nil
+        
+        if error != nil && isScanningEnabled {
+            // Only show if can't recover quickly
+            errorNotificationDelayTimer = Timer.scheduledTimer(withTimeInterval: 5, repeats: false, block: { _ in
+                self.onUpdate?(.error("Disconnected"))
+            })
+            startScan()
+        }
     }
 
     // MARK: - CBPeripheralDelegate -
@@ -214,7 +211,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didDiscoverServices error: Error?) {
         guard let services = peripheral.services else {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-            errorOccurred("Discover services issue")
             return
         }
         os_log("%{public}s: %{public}s", log: log, type: .debug, #function, "\(services)")
@@ -226,7 +222,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard let characteristics = service.characteristics else {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error?.localizedDescription))")
-            errorOccurred("Discover characteristics issue")
             return
         }
 
@@ -249,7 +244,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s", log: log, type: .info, #function)
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            errorOccurred("Update notification state update issue")
             return
         } else {
             os_log("%{public}s: isNotifying: %{public}s", log: log, type: .info, #function, "\(characteristic.isNotifying)")
@@ -260,7 +254,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
     func peripheral(_ peripheral: CBPeripheral, didUpdateValueFor characteristic: CBCharacteristic, error: Error?) {
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            errorOccurred("Update value issue")
             return
         }
         
@@ -275,7 +268,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         let message = str.dropFirst(2)
         
         switch messageType {
-        
         case .name:
             let name = String(message)
             os_log("%{public}s: got name: %{public}s", log: log, type: .info, #function, name)
@@ -287,6 +279,8 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
             }
             os_log("%{public}s: pressed: %{public}i", log: log, type: .info, #function, button)
             onUpdate?(.buttonPressed(number: button))
+        case .heartbeat:
+            send(message: .heartbeat)
         }
     }
 
@@ -294,7 +288,6 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         os_log("%{public}s", log: log, type: .debug, #function)
         if let error = error {
             os_log("%{public}s: error: %{public}s", log: log, type: .error, #function, "\(String(describing: error.localizedDescription))")
-            errorOccurred("Write value issue")
         } else {
             sendFromBuffer()
         }

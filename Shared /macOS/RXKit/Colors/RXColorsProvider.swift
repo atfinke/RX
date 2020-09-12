@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Used for drag and drop in preferences app
+/// Used for drag and drop R1 body in preferences app
 public final class RXColorsProvider: NSObject, Codable, NSItemProviderWriting, NSItemProviderReading {
 
     // MARK: - Properties -
