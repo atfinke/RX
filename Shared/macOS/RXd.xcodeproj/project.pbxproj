@@ -10,7 +10,8 @@
 		141EAAFF253D495700427B08 /* NotificationsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 141EAAFE253D495700427B08 /* NotificationsManager.swift */; };
 		141EAB68253D58F100427B08 /* RXKit in Frameworks */ = {isa = PBXBuildFile; productRef = 141EAB67253D58F100427B08 /* RXKit */; };
 		1458C91524AABD2C0018477C /* Macintosh.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1458C91424AABD2C0018477C /* Macintosh.swift */; };
-		14FC633C247C9FE500E9B7BA /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC633B247C9FE500E9B7BA /* main.swift */; };
+		14A7284F254A2A7A00B09D5D /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14A7284E254A2A7A00B09D5D /* main.swift */; };
+		14FC633C247C9FE500E9B7BA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC633B247C9FE500E9B7BA /* AppDelegate.swift */; };
 		14FC6340247C9FE500E9B7BA /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 14FC633F247C9FE500E9B7BA /* Assets.xcassets */; };
 		14FC634C247CC61D00E9B7BA /* RXConnectionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14FC634B247CC61D00E9B7BA /* RXConnectionManager.swift */; };
 /* End PBXBuildFile section */
@@ -28,8 +29,9 @@
 /* Begin PBXFileReference section */
 		141EAAFE253D495700427B08 /* NotificationsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationsManager.swift; sourceTree = "<group>"; };
 		1458C91424AABD2C0018477C /* Macintosh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Macintosh.swift; sourceTree = "<group>"; };
+		14A7284E254A2A7A00B09D5D /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
 		14FC6338247C9FE500E9B7BA /* RXd.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RXd.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		14FC633B247C9FE500E9B7BA /* main.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		14FC633B247C9FE500E9B7BA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		14FC633F247C9FE500E9B7BA /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		14FC6344247C9FE500E9B7BA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		14FC6345247C9FE500E9B7BA /* RXd.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RXd.entitlements; sourceTree = "<group>"; };
@@ -69,7 +71,8 @@
 		14FC633A247C9FE500E9B7BA /* RXd */ = {
 			isa = PBXGroup;
 			children = (
-				14FC633B247C9FE500E9B7BA /* main.swift */,
+				14A7284E254A2A7A00B09D5D /* main.swift */,
+				14FC633B247C9FE500E9B7BA /* AppDelegate.swift */,
 				1458C91424AABD2C0018477C /* Macintosh.swift */,
 				141EAAFE253D495700427B08 /* NotificationsManager.swift */,
 				14FC634B247CC61D00E9B7BA /* RXConnectionManager.swift */,
@@ -185,8 +188,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				1458C91524AABD2C0018477C /* Macintosh.swift in Sources */,
+				14A7284F254A2A7A00B09D5D /* main.swift in Sources */,
 				14FC634C247CC61D00E9B7BA /* RXConnectionManager.swift in Sources */,
-				14FC633C247C9FE500E9B7BA /* main.swift in Sources */,
+				14FC633C247C9FE500E9B7BA /* AppDelegate.swift in Sources */,
 				141EAAFF253D495700427B08 /* NotificationsManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -317,7 +321,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2020.10.18;
+				CURRENT_PROJECT_VERSION = 2020.10.26;
 				DEVELOPMENT_TEAM = 72S993BNAV;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = RXd/Info.plist;
@@ -339,7 +343,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
-				CURRENT_PROJECT_VERSION = 2020.10.18;
+				CURRENT_PROJECT_VERSION = 2020.10.26;
 				DEVELOPMENT_TEAM = 72S993BNAV;
 				ENABLE_HARDENED_RUNTIME = YES;
 				INFOPLIST_FILE = RXd/Info.plist;

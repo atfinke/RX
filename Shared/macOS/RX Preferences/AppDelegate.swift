@@ -58,24 +58,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 self?.updateRXDStatus()
             })
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                guard !RXPreferences.isRXdAlive(),
-                      let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.andrewfinke.RXd") else { return }
-                
-                let alert = NSAlert()
-                alert.messageText = "RXd Not Running"
-                alert.informativeText = "RXd must be running to connect to your device. Would you like to launch it in the background now?"
-                alert.alertStyle = NSAlert.Style.warning
-                alert.addButton(withTitle: "Yes")
-                alert.addButton(withTitle: "No")
-                guard alert.runModal() == NSApplication.ModalResponse.alertFirstButtonReturn else {
-                    return
-                }
-                
-                NSWorkspace.shared.openApplication(at: url, configuration: .init(), completionHandler: { _, _ in
-                    self.updateRXDStatus()
-                })
-            }
+            
+            // Unfortunately, while this is super helpful, it has an issue on first reboot.
+            // Since the user isn't prompted with the 'are you sure you want to open this' prompt when RXd is opened via NSWorkspace below, that dialog is deferred to later.
+            // On reboot, the prompt is displayed (when RXd is in login items), but pressing 'ok' / enabling RXd to launch does nothing, RXd does not launch.
+            
+//            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+//                guard !RXPreferences.isRXdAlive(),
+//                      let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.andrewfinke.RXd") else { return }
+//
+//                let alert = NSAlert()
+//                alert.messageText = "RXd Not Running"
+//                alert.informativeText = "RXd must be running to connect to your device. Would you like to launch it in the background now?"
+//                alert.alertStyle = NSAlert.Style.warning
+//                alert.addButton(withTitle: "Yes")
+//                alert.addButton(withTitle: "No")
+//                guard alert.runModal() == NSApplication.ModalResponse.alertFirstButtonReturn else {
+//                    return
+//                }
+//
+//                NSWorkspace.shared.openApplication(at: url, configuration: .init(), completionHandler: { _, _ in
+//                    self.updateRXDStatus()
+//                })
+//            }
         } catch {
             let contentView = SetupView(onFinish: { hardware in
                 hardware.save()

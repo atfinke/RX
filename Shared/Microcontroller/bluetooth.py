@@ -18,15 +18,15 @@ class Bluetooth:
         self._advertisement = ProvideServicesAdvertisement(self._uart_service)
 
         self._connection = None
-        self._next_send_heartbeat_time = time.monotonic()
+        self._next_send_heartbeat_time = time.time()
         self._max_response_heartbeat_time = None
 
     def connect(self, timeout=None):
-        start_time = time.monotonic()
+        start_time = time.time()
         self._radio.start_advertising(self._advertisement)
 
         while not self.is_connected():
-            if timeout is not None and time.monotonic() - start_time > timeout:
+            if timeout is not None and time.time() - start_time > timeout:
                 self._radio.stop_advertising()
                 return False
             time.sleep(0.05)
@@ -35,7 +35,7 @@ class Bluetooth:
             self._connection = connection
         self._radio.stop_advertising()
 
-        self._next_send_heartbeat_time = time.monotonic() + Constants.HEARTBEAT_INTERVAL
+        self._next_send_heartbeat_time = time.time() + Constants.HEARTBEAT_INTERVAL
         self._max_response_heartbeat_time = None
         return True
 
@@ -66,13 +66,13 @@ class Bluetooth:
 
     # Sometimes the RD write connection dies, but reading from RXd still works. This triggers a reconnect.
     def heartbeat(self):
-        mono = time.monotonic()
+        t = time.time()
 
-        if self._max_response_heartbeat_time is not None and mono > self._max_response_heartbeat_time:
+        if self._max_response_heartbeat_time is not None and t > self._max_response_heartbeat_time:
             print("bluetooth.py: heartbeat: write connection dead")
             self.disconnect()
             time.sleep(0.2)
-        elif mono > self._next_send_heartbeat_time:
+        elif t > self._next_send_heartbeat_time:
             self.write("h")
-            self._next_send_heartbeat_time = mono + Constants.HEARTBEAT_INTERVAL
-            self._max_response_heartbeat_time = mono + Constants.HEARTBEAT_MAX_RESPONSE_TIME
+            self._next_send_heartbeat_time = t + Constants.HEARTBEAT_INTERVAL
+            self._max_response_heartbeat_time = t + Constants.HEARTBEAT_MAX_RESPONSE_TIME

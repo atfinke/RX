@@ -63,7 +63,7 @@ class RXConnectionManager: NSObject, CBCentralManagerDelegate, CBPeripheralDeleg
         return CBCentralManager(delegate: self, queue: nil)
     }()
     
-    private var peripheral: CBPeripheral?
+    private(set) var peripheral: CBPeripheral?
     
     private var readCharacteristic: CBCharacteristic?
     private var writeCharacteristic: CBCharacteristic?

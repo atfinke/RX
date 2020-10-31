@@ -3,8 +3,6 @@ import board
 
 class HardwareConfig:
 
-    VERSION = 2
-    
     INTERNAL_LED = None  # board.NEOPIXEL
 
     BUTTON_INPUTS = [board.A2]

@@ -39,7 +39,7 @@ class Main:
         self.lights = Lights()
 
         self.lights.start_transition_to_new_resting_colors(color_array([0, 0, HardwareConfig.MAX_LED_VALUE], self.buttons_count))
-        self.transition_start_time = time.monotonic()
+        self.transition_start_time = time.monotonic_ns()
         while self.transition_start_time is not None:
             self.update_leds_for_transition()
 
@@ -53,7 +53,7 @@ class Main:
         self.bluetooth.connect()
 
         self.lights.start_transition_to_new_resting_colors(single_color_array(0, self.buttons_count))
-        self.transition_start_time = time.monotonic()
+        self.transition_start_time = time.monotonic_ns()
 
         print("connected")
         self._update_internal_led_color((0, 0, 0))
@@ -79,7 +79,7 @@ class Main:
 
             if self.bluetooth.is_connected():
                 print("fast connect success")
-                pass
+                continue
             else:
                 print("fast connect failed")
                 
@@ -113,7 +113,8 @@ class Main:
             return
 
         # Get percent progress
-        progress = (time.monotonic() - self.transition_start_time) / Constants.LIGHT_TRANSITION_DURATION
+        time_since_start_ms = round((time.monotonic_ns() - self.transition_start_time) / 1e6, 1)
+        progress = time_since_start_ms / Constants.LIGHT_TRANSITION_DURATION
         self.lights.update_transition_to_new_resting_colors_progress(progress)
         if progress >= 1:
             self.transition_start_time = None
@@ -169,10 +170,10 @@ class Main:
 
             pressed_colors = num_array_from_buffer(buffer=self.buffered_colors, offset=self.buttons_count, light_count=self.buttons_count)
             self.lights.update_pressed_colors(pressed_colors)
-            self.transition_start_time = time.monotonic()
+            self.transition_start_time = time.monotonic_ns()
 
 
-print("Booted V: 2020.09 - {}".format(HardwareConfig.VERSION))
+print("Booted FW: {}".format(Constants.FW_VERSION))
 supervisor.disable_autoreload() # to enable call enable_autoreload() once
 main = Main(force_debug=False)
 main.run()
