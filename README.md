@@ -2,7 +2,7 @@
 
 A small stay at home side project. Bluetooth buttons that trigger actions on a Mac.
 <br> <br><p align="center">
-  <img src="https://raw.githubusercontent.com/atfinke/RX/master/Other/RX.jpeg?raw=true" width="90%"/>
+  <img src="https://raw.githubusercontent.com/atfinke/RX/main/Other/RX.jpeg?raw=true" width="90%"/>
 </p>
 
 - R1 = V1: Bluetooth, USB Power

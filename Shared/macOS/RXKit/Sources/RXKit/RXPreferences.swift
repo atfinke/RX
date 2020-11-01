@@ -66,18 +66,24 @@ public final class RXPreferences: ObservableObject, Codable {
     static public func loadFromDisk(writingEnabled: Bool) throws -> RXPreferences {
         let hardware = try RXHardware.loadFromDisk()
 
+        let loadedFromDisk: Bool
         let preferences: RXPreferences
         if let data = try? Data(contentsOf: RXURL.appData()), let object = try? JSONDecoder().decode(RXPreferences.self, from: data) {
             preferences = object
+            loadedFromDisk = true
             os_log("Found existing prefs on disk", log: preferences.log, type: .info)
         } else {
             preferences = RXPreferences(hardware: hardware)
+            loadedFromDisk = false
             os_log("Creating new prefs", log: preferences.log, type: .info)
         }
 
         // Only the RX Preferences app needs to make changes
         if writingEnabled {
             preferences.enableWritingToDisk()
+            if !loadedFromDisk {
+                RXNotifier.local.updated()
+            }
         } else {
             // RXd should periodically tell the preferences app it is running.
             // This defaults approach is due to inconsistent results from runningApplicationsWithBundleIdentifier (which would be the preferred way to do this) when RXd is launched as a login item.

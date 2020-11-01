@@ -32,11 +32,11 @@
 	<string>RXd uses Bluetooth to connect to RX devices.</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2020 Andrew Finke. All rights reserved.</string>
+	<key>NSPrincipalClass</key>
+	<string>NSApplication</string>
 	<key>NSSupportsAutomaticTermination</key>
 	<false/>
 	<key>NSSupportsSuddenTermination</key>
 	<false/>
-	<key>NSPrincipalClass</key>
-	<string>NSApplication</string>
 </dict>
 </plist>

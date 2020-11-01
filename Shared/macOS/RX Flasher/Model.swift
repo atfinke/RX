@@ -8,7 +8,7 @@
 import Foundation
 
 class Model: ObservableObject {
-    
+ 
     // MARK: - Properties -
     
     @Published private(set) var isConnected: Bool = false
@@ -23,7 +23,7 @@ class Model: ObservableObject {
         }
     }
     @Published var formDeviceName: String = "TBD's RD"
-    var formDeviceSerialNumber: String = ""
+    @Published var formDeviceSerialNumber: String = ""
     
     @Published var isDoneFlashing: Bool = false
     
@@ -49,6 +49,23 @@ class Model: ObservableObject {
         }
         let relevent = items.filter { $0.path.hasSuffix("CIRCUITPY") || $0.path.hasSuffix("R1") || $0.path.hasSuffix("RD") }
         if let item = relevent.first {
+            
+            func cleaned(_ str: String) -> String {
+                return String(str.dropFirst().dropLast())
+            }
+            
+            let hardwareConfigURL = item.appendingPathComponent("hardware_config.py")
+            if let data = try? String(contentsOf: hardwareConfigURL).components(separatedBy: "\n") {
+                for line in data where line.contains("=") {
+                    let comps = line.components(separatedBy: " = ")
+                    if comps[0] == "    NAME" {
+                        formDeviceName = cleaned(comps[1])
+                    } else if comps[0] == "    SERIAL_NUMBER" {
+                        formDeviceSerialNumber = cleaned(comps[1])
+                    }
+                }
+            }
+            
             isConnected = true
             connectedDevicePath = item.path
             volumeURL = item
