@@ -37,7 +37,7 @@ Yeah, AppleScript! AppleScript is perfect for this use case for a number of reas
 
 You can see some sample workflows in the RX repo example actions folder [here](https://github.com/atfinke/RX/tree/main/Shared/Actions). If you are looking for a quick hello world alert script to test out your RD, I recommend the one in the RX repo [here](https://github.com/atfinke/RX/blob/main/Shared/Actions/System/Hello%20World.scpt).
 
-The last piece of the puzzle is the RXd app, which is essentially a wannabe demon process (the RXd app has no interface and will not appear in your dock). Its function is to act as the bridge between your Mac and RD. 
+The last piece of the puzzle is the RXd app, which is essentially a wannabe daemon process (the RXd app has no interface and will not appear in your dock). Its function is to act as the bridge between your Mac and RD. 
 
 After setting up your device in the RX Preferences app for the first time, launch RXd. RXd should automatically connect to RD and if you enable its notifications, will alert you once connected. I recommend adding the RXd app as a login item (System Preferences -> Users & Groups), which means the app will start whenever you log in. The RXd app is always up to date with changes you make in the RX Preferences app.
 
